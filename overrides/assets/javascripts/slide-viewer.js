@@ -44,6 +44,10 @@ const T = {
     alt: (k, title) => (title ? `Slide gốc ${k}: ${title}` : `Slide gốc ${k}`),
     rendered: (k) => `Đã hiện slide gốc ${k}.`,
     retryLabel: (k) => `Thử lại slide gốc ${k}`,
+    // F11: the accessible name while retrying (visible text swaps to T.retrying) starts with
+    // the same words as that visible text, so it stays a Label in Name match (WCAG 2.5.3)
+    // instead of going silently stale under the disabled state.
+    retryingLabel: (k) => `Đang thử lại slide gốc ${k}`,
     cardTitle: "Slide của chương",
     cardMeta: (pages, size) => `${pages} trang · ≈${size} · PDF gốc của tác giả, tiếng Trung`,
     cardMetaEn: (pages, size) => `${pages} trang · ≈${size} · PDF gốc của tác giả, tiếng Anh`,
@@ -61,6 +65,8 @@ const T = {
     rendered: (k) => `Original slide ${k} shown.`,
     // Starts with the visible text "Try again" (WCAG 2.5.3 Label in Name, for voice control).
     retryLabel: (k) => `Try again: original slide ${k}`,
+    // F11: same Label in Name rule, while the button's visible text is T.retrying ("Retrying…").
+    retryingLabel: (k) => `Retrying: original slide ${k}`,
     cardTitle: "Chapter slides",
     cardMeta: (pages, size) => `${pages} pages · ≈${size} · the authors' original PDF, in Chinese`,
     cardMetaEn: (pages, size) => `${pages} pages · ≈${size} · the authors' original PDF, in English`,
@@ -373,8 +379,10 @@ function setUpSlideNotes(article) {
     item.retryBtn = null;
   }
 
-  function currentRetryButtons() {
-    return pageState.items.filter((it) => it.msgKind === "deckFailed").map((it) => it.retryBtn);
+  // Returns the items, not just their buttons: F11 needs each item's own `k` to rebuild its
+  // retry button's accessible name (retrying vs. not) alongside its visible text.
+  function currentFailedItems() {
+    return pageState.items.filter((it) => it.msgKind === "deckFailed");
   }
   function announceDeckError() {
     // role=status does not re-announce unchanged text, but a reader needs to hear every
@@ -417,17 +425,19 @@ function setUpSlideNotes(article) {
   async function retryDeck() {
     if (pageState.retrying) return;
     pageState.retrying = true;
-    for (const btn of currentRetryButtons()) {
-      btn.setAttribute("aria-disabled", "true"); // never the `disabled` attribute: it drops focus to body
-      btn.textContent = T.retrying;
+    for (const it of currentFailedItems()) {
+      it.retryBtn.setAttribute("aria-disabled", "true"); // never the `disabled` attribute: it drops focus to body
+      it.retryBtn.textContent = T.retrying;
+      it.retryBtn.setAttribute("aria-label", T.retryingLabel(it.k)); // F11: label in name while retrying
     }
     try {
       await ensureDeck(pageState.key); // success clears deckFailed and requeues itself above
       pageState.statusEl.textContent = ""; // F4: no stale "could not load" after a successful retry
     } catch (err) {
-      for (const btn of currentRetryButtons()) {
-        btn.removeAttribute("aria-disabled");
-        btn.textContent = T.retry;
+      for (const it of currentFailedItems()) {
+        it.retryBtn.removeAttribute("aria-disabled");
+        it.retryBtn.textContent = T.retry;
+        it.retryBtn.setAttribute("aria-label", T.retryLabel(it.k)); // F11: back to the non-retrying label
       }
       console.warn("slide viewer:", err.cause ?? err);
       announceDeckError();

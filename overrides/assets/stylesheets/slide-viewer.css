@@ -12,11 +12,19 @@
   --dill-btn-font: .75rem;
   --dill-btn-line: 1.4; /* unitless: line-height * font-size below is a valid rem length */
   --dill-btn-pad-v: .3375rem; /* was .45em of the button's own .75rem font */
-  /* 1px, not .05rem: past 1600px the root is 22px, .05rem = 1.1px, and Chrome draws a border at a
-     whole device pixel (1px), so the reserve came out 0.305px/slide taller than the real block
-     (23px by the end of ch2, measured in result review R2). A px border is drawn as written. */
+  /* 1px, not .05rem: past 1600px the root is 22px, .05rem = 1.1px, and a border/outline this
+     thin is drawn at a whole device pixel. At DPR 1 that device pixel is 1 CSS px (as written),
+     but at a fractional devicePixelRatio (1.25/1.5/2.625, emulated with `zoom`) it rounds to
+     0.8/0.667 CSS px, which used to drift the reserve ~0.6-1px/slide from the real block (F10).
+     This variable now sizes two different things: the button's own border (still a real,
+     layout-consuming border — F10 pins the button's RENDERED height to --dill-btn-h directly,
+     so that border's own subpixel rounding can no longer move it) and the frame's outline
+     (never layout-consuming at all, so its subpixel rounding cannot move anything either). */
   --dill-frame-border: 1px;
-  /* Single line of button text, border-box: content line-height + vertical padding + border. */
+  /* Single line of button text, border-box: content line-height + vertical padding + border.
+     F10: this is also an explicit `height` on the button below (not just its implicit content
+     size), so the button's rendered height is exactly this value regardless of subpixel
+     rounding in any one term that makes it up. */
   --dill-btn-h: calc(var(--dill-btn-line) * var(--dill-btn-font) + 2 * var(--dill-btn-pad-v) + 2 * var(--dill-frame-border));
   --dill-view-mt: .48rem; /* .dill-slide__view's margin-top: was .6em of the ambient .8rem body
                               text, which Material shrinks to .7rem past 1220px width — fixed in
@@ -26,23 +34,29 @@
 /* Load-time CLS fix (2026-11-12, Amendment A6): overrides/main.html's inline head script adds
    `dill-auto` to <html> before first paint, unless Save-Data is on. While the module has not
    yet run (`:not(.dill-ready)`), reserve the space it will insert after each slide heading: the
-   per-slide button's own height, the view's top margin, and a 16:9 frame at the column's width,
-   narrowed by the frame's own border on each side the same way the real frame narrows its box
+   per-slide button's own height, the view's top margin, and a 16:9 frame at the column's width
    (every deck is one page size, 16:9, per pdfinfo — scripts/slide_decks.py enforces it). The
    module adds `dill-ready` in the same task it inserts the real blocks, so the reserve and the
    real content swap in one frame. Manual mode (Save-Data, no `dill-auto`) reserves nothing, so
-   no-JS and Save-Data readers never see an empty gap. */
+   no-JS and Save-Data readers never see an empty gap.
+   F10: the frame's edge used to be a border, which narrows the box it draws on, so this used to
+   subtract 2 * the border width here and add it back as extra margin-top below, to mirror that
+   narrowing. The frame now draws its edge as an outline instead (see .dill-slide__frame below),
+   which never takes layout space, so the frame's box — and the reserve that stands in for it —
+   is a plain 100% wide with no border term in the margin either: both terms used to drift from
+   the real block by ~0.6-1px/slide at a fractional devicePixelRatio, where a border's 1px line
+   rounds to 0.8/0.667 device px. */
 html.dill-auto:not(.dill-ready) .md-typeset h2[id^="slide-"]::after {
   content: "";
   display: block;
-  width: calc(100% - 2 * var(--dill-frame-border));
+  width: 100%;
   /* .64em is NOT a mismatched unit like the old 2.9em: it stands for the h2's OWN
      margin-bottom (Material's `.md-typeset h2 { margin: 1.6em 0 .64em }`, measured 16px at a
      25px h2 font-size). The ::after lives INSIDE the h2, so unlike the real .dill-slide (a
      sibling, whose own top margin collapses with the h2's bottom margin for free), nothing
      reproduces that margin-bottom here unless this adds it back — measured as an exact, fully
      accounted-for 16px/slide gap on ch2 before this line was added. */
-  margin-top: calc(.64em + var(--dill-btn-h) + var(--dill-view-mt) + 2 * var(--dill-frame-border));
+  margin-top: calc(.64em + var(--dill-btn-h) + var(--dill-view-mt));
   aspect-ratio: 16 / 9;
 }
 
@@ -58,7 +72,13 @@ html.dill-auto:not(.dill-ready) .md-typeset h2[id^="slide-"]::after {
   cursor: pointer;
   /* F2: a fixed, deterministic height (--dill-btn-h, mirrored by the reserve above) means a
      single line always; a long English label (the longest: "View original slide 81 (≈11.5 MB)")
-     is clipped with an ellipsis instead of wrapping to a second line. */
+     is clipped with an ellipsis instead of wrapping to a second line.
+     F10: box-sizing:border-box + an explicit height PINS the rendered height to --dill-btn-h
+     exactly. Without an explicit height, the button's height is only the sum of line-height,
+     padding and border — a sum that can itself drift from --dill-btn-h by the same subpixel
+     rounding the border gets at a fractional devicePixelRatio. */
+  box-sizing: border-box;
+  height: var(--dill-btn-h);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -86,14 +106,23 @@ html.dill-auto:not(.dill-ready) .md-typeset h2[id^="slide-"]::after {
 .dill-slide__view { margin-top: var(--dill-view-mt); }
 .dill-slide__view[hidden] { display: none; }
 
-/* The frame is the visible, bordered box; the aspect ratio lives on the unbordered box inside
-   it (not on the frame itself), so a fresh placeholder and a rendered slide are the same
-   height to the pixel regardless of the border. `--empty` ("no pixels here") sets the
-   placeholder background and drives the dark-scheme and print rules below; drawSlide removes
-   it by building a fresh, plain frame, and release() puts it back on the existing one. */
+/* The frame is the visible box; the aspect ratio lives on the box inside it (not on the frame
+   itself), so a fresh placeholder and a rendered slide are the same height to the pixel.
+   `--empty` ("no pixels here") sets the placeholder background and drives the dark-scheme and
+   print rules below; drawSlide removes it by building a fresh, plain frame, and release() puts
+   it back on the existing one.
+   F10: the edge is an outline, not a border. A border takes layout space — narrowing the box
+   drawn inside it — and a 1px border line is drawn at a whole device pixel: 0.8/0.667 CSS px at
+   a fractional devicePixelRatio (1.25/1.5/2.625, emulated with `zoom`), which drifted the
+   frame's real content width away from the reserve's plain 100% by ~0.6-1px/slide by the end of
+   a chapter. An outline is painted without affecting the box model at all, so the frame's box —
+   and the aspect-ratio box inside it — is always exactly its 16:9 inner size, independent of
+   DPR; outline-offset: -1 * the thickness draws it just inside the frame's own edge, the same
+   place the border used to sit (Chromium and Firefox both clip the outline to border-radius). */
 .dill-slide__frame {
   width: 100%;
-  border: var(--dill-frame-border) solid var(--md-default-fg-color--lightest);
+  outline: var(--dill-frame-border) solid var(--md-default-fg-color--lightest);
+  outline-offset: calc(-1 * var(--dill-frame-border));
   border-radius: .2rem;
   overflow: hidden;
   background: #fff;
