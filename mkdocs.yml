@@ -9,6 +9,49 @@ copyright: >-
 
 docs_dir: docs
 
+# Explicit order (the auto-nav sorted Chapter10 before Chapter2). Paths are relative to
+# docs/<lang>/; mkdocs-static-i18n resolves them per language. Titles are English here and
+# translated for vi under plugins.i18n.languages[vi].nav_translations. Chapter titles are
+# the translated H1 of each chapter README, without the "Dive into LLMs:" prefix.
+nav:
+  - Home: index.md
+  - "1. Fine-Tuning and Deploying Pre-trained Language Models":
+      - Tutorial: chapter1/README.md
+      - Slide notes: chapter1/slides.md
+  - "2. Prompting and Chain-of-Thought for Large Models":
+      - Tutorial: chapter2/README.md
+      - Slide notes: chapter2/slides.md
+  - "3. Knowledge Editing for Large Models":
+      - Tutorial: chapter3/README.md
+      - Slide notes: chapter3/slides.md
+  - "4. Mathematical Reasoning with LLMs":
+      - Tutorial: chapter4/README.md
+      - Notebook: chapter4/sft_math.md
+      - Slide notes: chapter4/slides.md
+  - "5. Model Watermarking":
+      - Tutorial: chapter5/README.md
+      - Slide notes: chapter5/slides.md
+  - "6. Jailbreak Attacks on Large Models":
+      - Tutorial: chapter6/README.md
+      - Slide notes: chapter6/slides.md
+  - "7. Text Steganography with LLMs":
+      - Tutorial: chapter7/README.md
+      - Slide notes: chapter7/slides.md
+  - "8. Multimodal Large Language Models":
+      - Tutorial: chapter8/README.md
+      - Slide notes: chapter8/slides.md
+  - "9. Building GUI Agents":
+      - Tutorial: chapter9/README.md
+      - Notebook: chapter9/GUIagent.md
+      - Slide notes: chapter9/slides.md
+  - "10. LLM Agent Safety":
+      - Tutorial: chapter10/README.md
+      - Slide notes: chapter10/slides.md
+  - "11. RLHF":
+      - Tutorial: chapter11/README.md
+      - Notebook: chapter11/RLHF.md
+      - Slide notes: chapter11/slides.md
+
 theme:
   name: material
   custom_dir: overrides
@@ -52,6 +95,21 @@ plugins:
           default: true
           name: Tiếng Việt
           build: true
+          nav_translations:
+            Home: Trang chủ
+            Tutorial: Bài hướng dẫn
+            Slide notes: Ghi chú slide
+            "1. Fine-Tuning and Deploying Pre-trained Language Models": "1. Fine-tuning và triển khai mô hình ngôn ngữ pre-trained"
+            "2. Prompting and Chain-of-Thought for Large Models": "2. Prompting và chain-of-thought cho mô hình lớn"
+            "3. Knowledge Editing for Large Models": "3. Knowledge editing cho mô hình lớn"
+            "4. Mathematical Reasoning with LLMs": "4. Suy luận toán học với LLM"
+            "5. Model Watermarking": "5. Watermark cho mô hình"
+            "6. Jailbreak Attacks on Large Models": "6. Tấn công jailbreak trên mô hình lớn"
+            "7. Text Steganography with LLMs": "7. Steganography văn bản bằng LLM"
+            "8. Multimodal Large Language Models": "8. Multimodal large language model"
+            "9. Building GUI Agents": "9. Xây dựng GUI agent"
+            "10. LLM Agent Safety": "10. An toàn của LLM agent"
+            "11. RLHF": "11. RLHF (học tăng cường từ phản hồi của con người)"
         - locale: en
           name: English
           build: true

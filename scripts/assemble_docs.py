@@ -2,7 +2,7 @@
 """Assemble the MkDocs docs/ tree from translations (or, for the spike, from the sources).
 
 Pipeline per page: translated text -> link rewrite map (i18n_links) -> normalise
-(i18n_normalize) -> docs/<lang>/<page>. Notebooks go through build_notebooks first.
+(i18n_normalize) -> translator's notice, if PAGE_NOTICES names the page -> docs/<lang>/<page>. Notebooks go through build_notebooks first.
 Slide notes are only normalised, and may hold absolute http(s) links only.
 docs/vi and docs/en are cleared first, so nothing from an earlier run is built.
 
@@ -19,6 +19,7 @@ Usage:
 """
 from __future__ import annotations
 
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -29,6 +30,65 @@ from i18n_links import ROOT, UNIQUE_NOTEBOOKS, PageContext, check_external_only,
 from i18n_normalize import normalize  # noqa: E402
 
 LANGS = ("vi", "en")
+
+# Translator's notices (plan v5, "Per-chapter notices"): page -> notice key. The text is
+# i18n/notices/<lang>/<key>.md, inserted right after the page's first heading. A line
+# "{{quote PATH}}" or "{{fence PATH}}" in a notice is replaced by the file at PATH (repo
+# root relative, kept byte-identical to the fetched licence text; see legal/licences.json)
+# as blockquote lines or as a ```text fence.
+NOTICES_DIR = ROOT / "i18n" / "notices"
+PAGE_NOTICES = {
+    "chapter6/README.md": "dual-use",
+    "chapter7/README.md": "dual-use",
+    "chapter10/README.md": "dual-use",
+    "chapter8/README.md": "chapter8-nextgpt",
+    "chapter11/README.md": "chapter11-sources",
+    "chapter11/RLHF.md": "chapter11-sources",
+}
+# Slide-notes pages by deck stem (pre-publish review: the security decks need it as well).
+SLIDE_NOTICES = {"chapter6": "dual-use", "chapter7": "dual-use", "chapter10": "dual-use"}
+_INCLUDE = re.compile(r"^\{\{(quote|fence) ([^{}\s]+)\}\}$")
+_FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
+_HEADING = re.compile(r"^ {0,3}(#{1,6}(\s|$)|<h[1-6][\s>])")
+
+
+def notice_text(lang: str, key: str) -> str:
+    """The notice with its {{quote}}/{{fence}} lines expanded."""
+    out: list[str] = []
+    for line in (NOTICES_DIR / lang / f"{key}.md").read_text(encoding="utf-8").splitlines():
+        m = _INCLUDE.match(line)
+        if not m:
+            out.append(line)
+            continue
+        verbatim = (ROOT / m.group(2)).read_text(encoding="utf-8").rstrip("\n").split("\n")
+        if m.group(1) == "quote":
+            out.extend(f"> {v}".rstrip() for v in verbatim)
+        else:
+            if any(v.startswith("```") for v in verbatim):
+                raise ValueError(f"{m.group(2)} holds a ``` line; it cannot be fenced")
+            out.extend(["```text", *verbatim, "```"])
+    text = "\n".join(out)
+    if "{{" in text:
+        raise ValueError(f"notice {lang}/{key}: unexpanded '{{{{' left")
+    return text
+
+
+def insert_notice(page_text: str, notice: str, where: str) -> str:
+    """Insert the notice (then a thematic break) after the first heading outside fences."""
+    lines = page_text.split("\n")
+    fence: str | None = None
+    for i, line in enumerate(lines):
+        m = _FENCE.match(line)
+        if fence:
+            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence):
+                fence = None
+            continue
+        if m:
+            fence = m.group(1)
+            continue
+        if _HEADING.match(line):
+            return "\n".join(lines[: i + 1] + ["", notice, "", "---", ""] + lines[i + 1 :])
+    raise ValueError(f"{where}: no heading to put the notice after")
 
 
 def _write(path: Path, text: str) -> None:
@@ -61,6 +121,11 @@ def assemble(docs: Path, translation_root: Path | None) -> list[str]:
     translation_root None = spike: the upstream source stands in for the translation."""
     _clear(docs)
     written: list[str] = []
+    if translation_root is not None:
+        pages = {page for _, page, _ in source_files()}
+        missing = sorted(p for p in PAGE_NOTICES if p not in pages)
+        if missing:
+            raise ValueError(f"notices name pages that are not built: {missing}")
     for lang in LANGS:
         for source_rel, page, source_text in source_files():
             origin = ROOT / source_rel if translation_root is None else translation_root / lang / source_rel
@@ -71,7 +136,10 @@ def assemble(docs: Path, translation_root: Path | None) -> list[str]:
                 translated = origin.read_text(encoding="utf-8")
                 source_md = source_text
             out = docs / lang / page
-            _write(out, build_page(source_rel, page, lang, source_md, translated))
+            text = build_page(source_rel, page, lang, source_md, translated)
+            if translation_root is not None and page in PAGE_NOTICES:
+                text = insert_notice(text, notice_text(lang, PAGE_NOTICES[page]), str(out))
+            _write(out, text)
             written.append(str(out))
         if translation_root is not None:
             for slides in sorted((translation_root / lang / "slides").glob("chapter*.md")):
@@ -79,6 +147,8 @@ def assemble(docs: Path, translation_root: Path | None) -> list[str]:
                 out = docs / lang / slides.stem / "slides.md"
                 text = normalize(slides.read_text(encoding="utf-8"))
                 check_external_only(text, str(slides))
+                if slides.stem in SLIDE_NOTICES:  # the dual-use decks carry the notice too
+                    text = insert_notice(text, notice_text(lang, SLIDE_NOTICES[slides.stem]), str(out))
                 _write(out, text)
                 written.append(str(out))
     return written
