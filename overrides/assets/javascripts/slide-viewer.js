@@ -192,6 +192,7 @@ function setUpSlideNotes(article) {
       if (button.getAttribute("aria-expanded") === "true" && item.state !== "error") {
         button.setAttribute("aria-expanded", "false");
         view.hidden = true;
+        status.textContent = ""; // the live region never describes a slide the reader closed
         if (item.state === "done") release(item); // a slide still loading is released when it finishes
         return;
       }
@@ -218,7 +219,7 @@ function setUpSlideNotes(article) {
             el("a", { href: link.href }, T.openPdf),
           ),
         );
-        status.textContent = T.error;
+        if (!view.hidden) status.textContent = T.error; // a slide closed while loading fails silently
       } finally {
         view.removeAttribute("aria-busy");
       }
