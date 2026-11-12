@@ -6,7 +6,8 @@ The site goes to `https://duypham9895.github.io/dive-into-llms/` (vi at the root
 ## 0. Before anything leaves this machine
 
 Commit the working tree on `content/i18n`, then run every check, including the slide checks
-that CI cannot run (they read the git-ignored pdftotext cache in `i18n/.cache/slides/`):
+that CI cannot run (they read the git-ignored pdftotext cache in `i18n/.cache/slides/`, or the
+upstream PDF blobs through `pdfinfo`):
 
 ```sh
 git switch content/i18n
@@ -14,6 +15,7 @@ git status --short                         # must be empty
 P=.venv/bin/python
 $P scripts/test_i18n_normalize.py && $P scripts/test_i18n_links.py && $P scripts/test_i18n_check.py \
   && $P scripts/test_i18n_slides_check.py && $P scripts/i18n_check.py && $P scripts/i18n_slides_check.py \
+  && $P scripts/slide_decks.py --check \
   && $P scripts/assemble_docs.py && .venv/bin/mkdocs build --strict \
   && $P scripts/i18n_render_check.py site docs
 ```
