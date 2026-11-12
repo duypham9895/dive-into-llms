@@ -46,17 +46,26 @@
 }
 .md-typeset .dill-slide__error { border-left-color: #e53935; }
 
+/* The frame is the visible, bordered box; the aspect ratio lives on the unbordered box inside
+   it (not on the frame itself), so a fresh placeholder and a rendered slide are the same
+   height to the pixel regardless of the border. `--empty` ("no pixels here") sets the
+   placeholder background and drives the dark-scheme and print rules below; drawSlide removes
+   it by building a fresh, plain frame, and release() puts it back on the existing one. */
 .dill-slide__frame {
-  position: relative;
   width: 100%;
-  --scale-round-x: 1px;
-  --scale-round-y: 1px;
   border: .05rem solid var(--md-default-fg-color--lightest);
   border-radius: .2rem;
   overflow: hidden;
   background: #fff;
 }
-.dill-slide__frame canvas { display: block; width: 100%; height: auto; }
+.dill-slide__frame--empty { background: var(--md-code-bg-color); }
+.dill-slide__box {
+  position: relative;
+  width: 100%;
+  --scale-round-x: 1px;
+  --scale-round-y: 1px;
+}
+.dill-slide__box canvas { display: block; width: 100%; height: 100%; }
 
 @media (prefers-reduced-motion: no-preference) {
   .dill-slide__frame { animation: dill-fade .25s ease-out; }
@@ -64,6 +73,13 @@
 }
 @keyframes dill-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes dill-pulse { 50% { opacity: .55; } }
+
+/* A released or never-rendered slide prints as an empty box today and nothing tomorrow: hide
+   it and the page bar instead. A rendered slide prints as it is. */
+@media print {
+  .dill-slide__view:has(.dill-slide__frame--empty) { display: none; }
+  .dill-bar { display: none; }
+}
 
 /* PDF.js text layer: the rules this page needs, taken from pdfjs-dist 6.5.438
    web/pdf_viewer.css (Apache-2.0, Mozilla Foundation; LICENSE in assets/pdfjs/). */
@@ -122,6 +138,106 @@
   -webkit-user-select: none;
 }
 .dill-slide__frame .textLayer.selecting .endOfContent { top: 0; }
+
+/* Slide-notes pages: the page bar under the title (switch, note, and a status row for the
+   deck's own load state). The status row has a fixed min-height sized to its tallest state
+   (an error line plus the retry button) at 375px, so toggling between loading/empty/error
+   never changes the bar's height or moves the article below it. */
+.md-typeset .dill-bar {
+  margin: 0 0 1.5em;
+  padding: .8em 1em;
+  border: .05rem solid var(--md-default-fg-color--lightest);
+  border-left: .2rem solid var(--md-primary-fg-color);
+  border-radius: .2rem;
+  background: var(--md-code-bg-color);
+}
+/* Switch and note share a line when there is room and wrap onto two at phone width, instead of
+   squeezing into two narrow columns. */
+.md-typeset .dill-bar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 1.2em;
+  row-gap: .35em;
+}
+.md-typeset .dill-bar__switch {
+  display: flex;
+  align-items: center;
+  gap: .5em;
+  min-height: 1.2rem; /* a 24px target at least (WCAG 2.2 SC 2.5.8) */
+  font: inherit;
+  font-size: .7rem;
+  font-weight: 700;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--md-default-fg-color);
+  cursor: pointer;
+  text-align: left;
+}
+.md-typeset .dill-bar__switch:focus-visible {
+  outline: .15rem solid var(--md-accent-fg-color);
+  outline-offset: .15rem;
+}
+.dill-bar__switch-track {
+  flex: none;
+  display: inline-block;
+  width: 1.8em;
+  height: 1em;
+  border-radius: 1em;
+  background: var(--md-default-fg-color--lighter);
+  position: relative;
+  transition: background .15s ease;
+}
+.dill-bar__switch-thumb {
+  position: absolute;
+  top: .1em;
+  left: .1em;
+  width: .8em;
+  height: .8em;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .15s ease;
+}
+.dill-bar__switch[aria-checked="true"] .dill-bar__switch-track { background: var(--md-primary-fg-color); }
+.dill-bar__switch[aria-checked="true"] .dill-bar__switch-thumb { transform: translateX(.8em); }
+.md-typeset .dill-bar__note {
+  flex: 1 1 16em;
+  margin: 0;
+  font-size: .65rem;
+  color: var(--md-default-fg-color--light);
+}
+.md-typeset .dill-bar__statusrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6em;
+  margin-top: .5em;
+  /* Sized to the tallest state (the error line plus the retry button, whose border and padding
+     make it the tallest item), so the row is the same height in the loading, empty and error
+     states and the article below never moves. */
+  min-height: 1.7rem;
+}
+.md-typeset .dill-bar__status { margin: 0; font-size: .7rem; }
+.md-typeset .dill-bar__retry {
+  font: inherit;
+  font-size: .7rem;
+  padding: .3em .8em;
+  border: .05rem solid var(--md-primary-fg-color);
+  border-radius: .2rem;
+  background: transparent;
+  color: var(--md-primary-fg-color);
+  cursor: pointer;
+}
+[data-md-color-scheme="slate"] .md-typeset .dill-bar__retry {
+  border-color: var(--md-accent-fg-color);
+  color: var(--md-accent-fg-color);
+}
+.md-typeset .dill-bar__retry[aria-disabled="true"] { opacity: .6; cursor: default; }
+.md-typeset .dill-bar__retry:focus-visible {
+  outline: .15rem solid var(--md-accent-fg-color);
+  outline-offset: .15rem;
+}
 
 /* Tutorial pages: the deck card under the title. */
 .md-typeset .dill-deck {

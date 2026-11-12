@@ -3,46 +3,68 @@ export const COMMIT = "f84c04268794ef94f8949808bbc14ab8636763a0";
 export const DECKS = {
   "chapter1/dive-into-llm.pdf": {
     "bytes": 11474667,
-    "pages": 77
+    "pages": 77,
+    "width": 960,
+    "height": 540
   },
   "chapter10/dive-into-safety.pdf": {
     "bytes": 8058251,
-    "pages": 51
+    "pages": 51,
+    "width": 960,
+    "height": 540
   },
   "chapter11/RLHF.pdf": {
     "bytes": 2128065,
-    "pages": 24
+    "pages": 24,
+    "width": 960,
+    "height": 540
   },
   "chapter2/dive-into-prompting.pdf": {
     "bytes": 8852639,
-    "pages": 76
+    "pages": 76,
+    "width": 960,
+    "height": 540
   },
   "chapter3/dive_edit_0410.pdf": {
     "bytes": 3361016,
-    "pages": 21
+    "pages": 21,
+    "width": 960,
+    "height": 540
   },
   "chapter4/math.pdf": {
     "bytes": 4273337,
-    "pages": 17
+    "pages": 17,
+    "width": 960,
+    "height": 540
   },
   "chapter5/watermark.pdf": {
     "bytes": 3102193,
-    "pages": 48
+    "pages": 48,
+    "width": 453.543,
+    "height": 255.118
   },
   "chapter6/dive-Jailbreak.pdf": {
     "bytes": 8228913,
-    "pages": 44
+    "pages": 44,
+    "width": 960,
+    "height": 540
   },
   "chapter7/stega.pdf": {
     "bytes": 536214,
-    "pages": 13
+    "pages": 13,
+    "width": 960,
+    "height": 540
   },
   "chapter8/mllms.pdf": {
     "bytes": 9095267,
-    "pages": 81
+    "pages": 81,
+    "width": 720,
+    "height": 405
   },
   "chapter9/GUIagent.pdf": {
     "bytes": 6713110,
-    "pages": 43
+    "pages": 43,
+    "width": 960,
+    "height": 540
   }
 };
