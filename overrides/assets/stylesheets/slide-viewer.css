@@ -12,7 +12,10 @@
   --dill-btn-font: .75rem;
   --dill-btn-line: 1.4; /* unitless: line-height * font-size below is a valid rem length */
   --dill-btn-pad-v: .3375rem; /* was .45em of the button's own .75rem font */
-  --dill-frame-border: .05rem;
+  /* 1px, not .05rem: past 1600px the root is 22px, .05rem = 1.1px, and Chrome draws a border at a
+     whole device pixel (1px), so the reserve came out 0.305px/slide taller than the real block
+     (23px by the end of ch2, measured in result review R2). A px border is drawn as written. */
+  --dill-frame-border: 1px;
   /* Single line of button text, border-box: content line-height + vertical padding + border. */
   --dill-btn-h: calc(var(--dill-btn-line) * var(--dill-btn-font) + 2 * var(--dill-btn-pad-v) + 2 * var(--dill-frame-border));
   --dill-view-mt: .48rem; /* .dill-slide__view's margin-top: was .6em of the ambient .8rem body

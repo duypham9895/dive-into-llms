@@ -59,7 +59,8 @@ const T = {
     openPdf: "Open the original PDF",
     alt: (k, title) => (title ? `Original slide ${k}: ${title}` : `Original slide ${k}`),
     rendered: (k) => `Original slide ${k} shown.`,
-    retryLabel: (k) => `Retry original slide ${k}`,
+    // Starts with the visible text "Try again" (WCAG 2.5.3 Label in Name, for voice control).
+    retryLabel: (k) => `Try again: original slide ${k}`,
     cardTitle: "Chapter slides",
     cardMeta: (pages, size) => `${pages} pages · ≈${size} · the authors' original PDF, in Chinese`,
     cardMetaEn: (pages, size) => `${pages} pages · ≈${size} · the authors' original PDF, in English`,
