@@ -1,6 +1,6 @@
 # Glossary for the vi/en translation of Lordog/dive-into-llms @ f84c042 (《动手学大模型》).
 # Generated 2026-11-12. Review by Duy pending. Han in this file is source data, not page text.
-convention: "G3 = A (decided by Duy, 2026-11-12). In Vietnamese pages, SPECIALISED technical terms stay in English (fine-tuning, prompt, agent, token, RLHF, jailbreak, watermark, embedding, ...) and get a short Vietnamese gloss in parentheses at their first use in each chapter page (and each slide-notes page); later uses in the same page are bare English. ORDINARY words that have a settled Vietnamese form a Vietnamese CS student reads without hesitation are written in Vietnamese (mô hình, dữ liệu, huấn luyện, đánh giá, tham số, triển khai, học tăng cường, ...). Names of tools, models, datasets, libraries, methods, companies and people are written in their Latin form and never translated. Every term is listed below with keep_english_in_vi true or false, so the boundary is never decided ad hoc per chapter; a term not listed here is ordinary Vietnamese unless a reviewer adds it. English pages use the 'en' value. Entries whose en/vi contain ' | ' are context-dependent: the 'note' gives the rule. Chapter 0 = top README; chapters were found by string search over the 12 READMEs, the ch4/ch9/ch11 notebooks and the slide text cache."
+convention: "G3 = A (decided by Duy, 2026-11-12). In Vietnamese pages, SPECIALISED technical terms stay in English (fine-tuning, prompt, agent, token, RLHF, jailbreak, watermark, embedding, ...) and get a short Vietnamese gloss in parentheses at their first use in each chapter page (and each slide-notes page); later uses in the same page are bare English. ORDINARY words that have a settled Vietnamese form a Vietnamese CS student reads without hesitation are written in Vietnamese (mô hình, dữ liệu, huấn luyện, đánh giá, tham số, triển khai, học tăng cường, ...). Names of tools, models, datasets, libraries, methods, companies and people are written in their Latin form and never translated. Every term is listed below with keep_english_in_vi true or false, so the boundary is never decided ad hoc per chapter; a term not listed here is ordinary Vietnamese unless a reviewer adds it. English pages use the 'en' value. English pages use US spelling. Entries whose en/vi contain ' | ' are context-dependent: the 'note' gives the rule. Chapter 0 = top README; chapters were found by string search over the 12 READMEs, the ch4/ch9/ch11 notebooks and the slide text cache."
 terms:
   - zh: "推理"
     en: "inference | reasoning"
@@ -1041,7 +1041,7 @@ terms:
   - zh: "推理行动协同"
     en: "ReAct"
     vi: "ReAct"
-    vi_gloss: "xen kẽ bước suy luận và bước hành động (gọi công cụ)"
+    vi_gloss: "xen kẽ bước suy luận và bước hành động trong môi trường"
     keep_english_in_vi: true
     chapters: [2]
     note: "Method name: keep ReAct verbatim."
@@ -1196,6 +1196,13 @@ terms:
     en: "max tokens"
     vi: "max tokens"
     vi_gloss: "giới hạn số token sinh ra"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "流式"
+    en: "streaming"
+    vi: "streaming"
+    vi_gloss: "nhận kết quả dần theo từng phần"
     keep_english_in_vi: true
     chapters: [2]
     note: ""
