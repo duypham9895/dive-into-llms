@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Write the deck map the slide viewer reads: size and page count of every upstream deck.
+"""Write the deck map the slide viewer reads: size, page count and page size of every deck.
 
 The viewer (overrides/assets/javascripts/slide-viewer.js) states each deck's download size
-before the reader clicks, so the numbers must come from the real files, not from memory.
-Sizes are `git cat-file -s` of the blobs at the pinned upstream commit; page counts are
-`pdfinfo` (poppler) run on those same blobs. Nothing is fetched from the network.
+before the reader clicks, and sizes a placeholder frame to the deck's own aspect ratio before
+any page has rendered, so the numbers must come from the real files, not from memory. Sizes
+are `git cat-file -s` of the blobs at the pinned upstream commit; page count and per-page size
+are `pdfinfo` (poppler) run on those same blobs. Nothing is fetched from the network.
 
 Usage:
   slide_decks.py           write overrides/assets/javascripts/slide-decks.js
@@ -28,9 +29,18 @@ def _git(*args: str) -> bytes:
     return subprocess.run(["git", "-C", str(ROOT), *args], check=True, capture_output=True).stdout
 
 
-def decks() -> dict[str, dict[str, int]]:
-    """{"chapterN/<deck>.pdf": {"bytes": n, "pages": n}} for every PDF under documents/."""
-    out: dict[str, dict[str, int]] = {}
+def _num(token: str) -> int | float:
+    """pdfinfo prints page sizes as "960" or "453.5"; keep that shape (no trailing ".0")."""
+    value = float(token)
+    return int(value) if value.is_integer() else value
+
+
+def decks() -> dict[str, dict[str, int | float]]:
+    """{"chapterN/<deck>.pdf": {"bytes", "pages", "width", "height"}} for every PDF under
+    documents/. width/height are one page's size in points (pdfinfo's own units); every deck is
+    required to be one page size with zero rotation throughout, since the viewer uses a single
+    aspect ratio for the whole deck's placeholder frames."""
+    out: dict[str, dict[str, int | float]] = {}
     names = _git("ls-tree", "-r", "--name-only", SHA, "documents").decode().split("\n")
     for path in sorted(p for p in names if p.endswith(".pdf")):
         blob = f"{SHA}:{path}"
@@ -41,10 +51,21 @@ def decks() -> dict[str, dict[str, int]]:
             if Path(tmp.name).stat().st_size != size:
                 raise ValueError(f"{path}: blob read back as a different size")
             info = subprocess.run(["pdfinfo", tmp.name], check=True, capture_output=True, text=True).stdout
-        pages = re.search(r"^Pages:\s+(\d+)$", info, re.M)
-        if not pages:
-            raise ValueError(f"{path}: pdfinfo gave no page count")
-        out[path.removeprefix("documents/")] = {"bytes": size, "pages": int(pages.group(1))}
+            pages_match = re.search(r"^Pages:\s+(\d+)$", info, re.M)
+            if not pages_match:
+                raise ValueError(f"{path}: pdfinfo gave no page count")
+            pages = int(pages_match.group(1))
+            per_page = subprocess.run(
+                ["pdfinfo", "-f", "1", "-l", str(pages), tmp.name], check=True, capture_output=True, text=True
+            ).stdout
+        sizes = {(_num(w), _num(h)) for w, h in re.findall(r"^Page\s+\d+ size:\s+([\d.]+) x ([\d.]+) pts$", per_page, re.M)}
+        rotations = {int(r) for r in re.findall(r"^Page\s+\d+ rot:\s+(-?\d+)$", per_page, re.M)}
+        if len(sizes) != 1:
+            raise ValueError(f"{path}: expected one page size for the whole deck, got {sorted(sizes)}")
+        if rotations != {0}:
+            raise ValueError(f"{path}: expected rotation 0 on every page, got {sorted(rotations)}")
+        (width, height) = next(iter(sizes))
+        out[path.removeprefix("documents/")] = {"bytes": size, "pages": pages, "width": width, "height": height}
     return out
 
 

@@ -2,17 +2,66 @@
 
 .dill-slide { margin: 0 0 1em; }
 
+/* F2 (result review R1): every rem variable below is read by BOTH the real block (the button,
+   the view's margin, the frame's border) and the CSS-only reserve further down, so the two can
+   never drift apart the way "2.9em on the h2" (relative to the H2'S OWN font-size, not the
+   button's) used to. All in rem, never em here: an em on the reserve pseudo would track the H2's
+   font, which Material itself changes at wider breakpoints — rem always tracks the root, which
+   stays 20px (125%) across every width this app is checked at (it only grows past 1600px). */
+:root {
+  --dill-btn-font: .75rem;
+  --dill-btn-line: 1.4; /* unitless: line-height * font-size below is a valid rem length */
+  --dill-btn-pad-v: .3375rem; /* was .45em of the button's own .75rem font */
+  /* 1px, not .05rem: past 1600px the root is 22px, .05rem = 1.1px, and Chrome draws a border at a
+     whole device pixel (1px), so the reserve came out 0.305px/slide taller than the real block
+     (23px by the end of ch2, measured in result review R2). A px border is drawn as written. */
+  --dill-frame-border: 1px;
+  /* Single line of button text, border-box: content line-height + vertical padding + border. */
+  --dill-btn-h: calc(var(--dill-btn-line) * var(--dill-btn-font) + 2 * var(--dill-btn-pad-v) + 2 * var(--dill-frame-border));
+  --dill-view-mt: .48rem; /* .dill-slide__view's margin-top: was .6em of the ambient .8rem body
+                              text, which Material shrinks to .7rem past 1220px width — fixed in
+                              rem instead so the reserve doesn't have to track that breakpoint */
+}
+
+/* Load-time CLS fix (2026-11-12, Amendment A6): overrides/main.html's inline head script adds
+   `dill-auto` to <html> before first paint, unless Save-Data is on. While the module has not
+   yet run (`:not(.dill-ready)`), reserve the space it will insert after each slide heading: the
+   per-slide button's own height, the view's top margin, and a 16:9 frame at the column's width,
+   narrowed by the frame's own border on each side the same way the real frame narrows its box
+   (every deck is one page size, 16:9, per pdfinfo — scripts/slide_decks.py enforces it). The
+   module adds `dill-ready` in the same task it inserts the real blocks, so the reserve and the
+   real content swap in one frame. Manual mode (Save-Data, no `dill-auto`) reserves nothing, so
+   no-JS and Save-Data readers never see an empty gap. */
+html.dill-auto:not(.dill-ready) .md-typeset h2[id^="slide-"]::after {
+  content: "";
+  display: block;
+  width: calc(100% - 2 * var(--dill-frame-border));
+  /* .64em is NOT a mismatched unit like the old 2.9em: it stands for the h2's OWN
+     margin-bottom (Material's `.md-typeset h2 { margin: 1.6em 0 .64em }`, measured 16px at a
+     25px h2 font-size). The ::after lives INSIDE the h2, so unlike the real .dill-slide (a
+     sibling, whose own top margin collapses with the h2's bottom margin for free), nothing
+     reproduces that margin-bottom here unless this adds it back — measured as an exact, fully
+     accounted-for 16px/slide gap on ch2 before this line was added. */
+  margin-top: calc(.64em + var(--dill-btn-h) + var(--dill-view-mt) + 2 * var(--dill-frame-border));
+  aspect-ratio: 16 / 9;
+}
+
 .md-typeset .dill-slide__button {
   font: inherit;
-  font-size: .75rem;
-  line-height: 1.4;
-  padding: .45em .9em;
-  border: .05rem solid var(--md-primary-fg-color);
+  font-size: var(--dill-btn-font);
+  line-height: var(--dill-btn-line);
+  padding: var(--dill-btn-pad-v) .9em;
+  border: var(--dill-frame-border) solid var(--md-primary-fg-color);
   border-radius: .2rem;
   background: transparent;
   color: var(--md-primary-fg-color);
   cursor: pointer;
-  white-space: normal;
+  /* F2: a fixed, deterministic height (--dill-btn-h, mirrored by the reserve above) means a
+     single line always; a long English label (the longest: "View original slide 81 (≈11.5 MB)")
+     is clipped with an ellipsis instead of wrapping to a second line. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: left;
   max-width: 100%;
 }
@@ -34,36 +83,93 @@
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
-.dill-slide__view { margin-top: .6em; }
+.dill-slide__view { margin-top: var(--dill-view-mt); }
 .dill-slide__view[hidden] { display: none; }
-.md-typeset .dill-slide__loading,
-.md-typeset .dill-slide__error {
-  margin: 0;
-  padding: .6em .8em;
-  font-size: .7rem;
-  border-left: .2rem solid var(--md-default-fg-color--lighter);
-  background: var(--md-code-bg-color);
-}
-.md-typeset .dill-slide__error { border-left-color: #e53935; }
 
+/* The frame is the visible, bordered box; the aspect ratio lives on the unbordered box inside
+   it (not on the frame itself), so a fresh placeholder and a rendered slide are the same
+   height to the pixel regardless of the border. `--empty` ("no pixels here") sets the
+   placeholder background and drives the dark-scheme and print rules below; drawSlide removes
+   it by building a fresh, plain frame, and release() puts it back on the existing one. */
 .dill-slide__frame {
-  position: relative;
   width: 100%;
-  --scale-round-x: 1px;
-  --scale-round-y: 1px;
-  border: .05rem solid var(--md-default-fg-color--lightest);
+  border: var(--dill-frame-border) solid var(--md-default-fg-color--lightest);
   border-radius: .2rem;
   overflow: hidden;
   background: #fff;
 }
-.dill-slide__frame canvas { display: block; width: 100%; height: auto; }
+.dill-slide__frame--empty { background: var(--md-code-bg-color); }
+.dill-slide__box {
+  position: relative;
+  width: 100%;
+  --scale-round-x: 1px;
+  --scale-round-y: 1px;
+}
+.dill-slide__box canvas { display: block; width: 100%; height: 100%; }
+
+/* Amendment A2: loading and error text live inside the box, absolutely positioned over the
+   (empty) canvas, so showing or clearing them never changes the frame's height. Empty (no
+   state to show) collapses to nothing instead of blocking clicks on an otherwise-empty box. */
+.dill-slide__msg {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5em;
+  padding: .8em;
+  text-align: center;
+}
+.dill-slide__msg:empty { display: none; }
+.md-typeset .dill-slide__msgtext {
+  margin: 0;
+  max-width: 100%;
+  font-size: .7rem;
+  /* F7: --light measured ≈4.58:1 on the dark placeholder background, barely over the 4.5:1 floor
+     for small text; the full-strength default token gives comfortable headroom in both schemes. */
+  color: var(--md-default-fg-color);
+  text-wrap: pretty;
+}
+.md-typeset .dill-slide__retry {
+  font: inherit;
+  font-size: .7rem;
+  padding: .35em .9em;
+  min-height: 1.5rem; /* a 24px target at least (WCAG 2.2 SC 2.5.8) */
+  border: .05rem solid var(--md-primary-fg-color);
+  border-radius: .2rem;
+  background: var(--md-default-bg-color);
+  color: var(--md-primary-fg-color);
+  cursor: pointer;
+}
+[data-md-color-scheme="slate"] .md-typeset .dill-slide__retry {
+  border-color: var(--md-accent-fg-color);
+  color: var(--md-accent-fg-color);
+}
+.md-typeset .dill-slide__retry[aria-disabled="true"] { opacity: .6; cursor: default; }
+.md-typeset .dill-slide__retry:focus-visible {
+  outline: .15rem solid var(--md-accent-fg-color);
+  outline-offset: .15rem;
+}
+.md-typeset .dill-slide__msglink {
+  display: inline-flex;
+  align-items: center;
+  font-size: .7rem;
+  padding: .35em .9em;
+  min-height: 1.5rem; /* F6: match .dill-slide__retry's 24px target (WCAG 2.2 SC 2.5.8) */
+}
 
 @media (prefers-reduced-motion: no-preference) {
   .dill-slide__frame { animation: dill-fade .25s ease-out; }
-  .dill-slide__loading { animation: dill-pulse 1.4s ease-in-out infinite; }
 }
 @keyframes dill-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes dill-pulse { 50% { opacity: .55; } }
+
+/* A released or never-rendered slide prints as an empty box today and nothing tomorrow: hide
+   it instead. A rendered slide prints as it is. */
+@media print {
+  .dill-slide__view:has(.dill-slide__frame--empty) { display: none; }
+}
 
 /* PDF.js text layer: the rules this page needs, taken from pdfjs-dist 6.5.438
    web/pdf_viewer.css (Apache-2.0, Mozilla Foundation; LICENSE in assets/pdfjs/). */
