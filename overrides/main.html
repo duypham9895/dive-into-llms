@@ -30,11 +30,21 @@
     <script>
       // Load-time CLS fix (Amendment A6, 2026-11-12): mark auto mode on <html> before first
       // paint so slide-viewer.css can reserve each slide's space; slide-viewer.js removes the
-      // reserve by adding dill-ready once the real blocks are in, in the same task.
+      // reserve by adding dill-ready once the real blocks are in, in the same task. This is the
+      // ONE place that reads Save-Data (F1): slide-viewer.js only ever reads the `dill-auto`
+      // class below, never navigator.connection itself.
       (function () {
         var auto = true;
         try { auto = !(navigator.connection && navigator.connection.saveData); } catch (e) {}
         if (auto) document.documentElement.classList.add("dill-auto");
+        // F3 safety net: a module script runs before `load` fires, so if slide-viewer.js ran
+        // normally it has already added dill-ready itself (even on a caught error, via its own
+        // try/finally). This listener only matters when the module never ran at all — a 404, a
+        // syntax error, or a browser with no ES module support — so the reserve above never
+        // stays on forever with nothing left to clear it.
+        window.addEventListener("load", function () {
+          document.documentElement.classList.add("dill-ready");
+        });
       })();
     </script>
   {% endif %}

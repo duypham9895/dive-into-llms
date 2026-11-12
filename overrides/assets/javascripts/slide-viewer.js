@@ -1,16 +1,19 @@
 // Original-slide viewer (decision 2026-11-12, option B; Amendment A: no switch), client-side
 // only.
 //
-// Slide-notes pages: unless the reader has Save-Data on (`navigator.connection.saveData ===
-// true`), every slide the reader has not closed renders ORIGINAL upstream deck pages by itself
-// as the reader scrolls near them, with PDF.js, read from raw.githubusercontent.com at the
-// pinned commit. No copy of a deck is made: raw sends `access-control-allow-origin: *`, but
-// answers a Range request with 501, so ranges and streaming are off and the first page shown
-// downloads the whole deck; one document promise per deck is then reused. Two
-// IntersectionObservers track how close each slide is to the viewport (NEAR to trigger a
-// render, FAR to give pixels back once it is well past). With Save-Data on, the page runs in
-// manual mode: a slide only renders when its own button is clicked, nothing is prefetched, and
-// nothing above the slides says which mode is active.
+// Slide-notes pages: unless the reader has Save-Data on, every slide the reader has not closed
+// renders ORIGINAL upstream deck pages by itself as the reader scrolls near them, with PDF.js,
+// read from raw.githubusercontent.com at the pinned commit. The mode (auto vs. manual) has one
+// source of truth: the `dill-auto` class overrides/main.html's inline head script puts on <html>
+// from its own, single Save-Data read, before this module ever runs (F1) — this module never
+// reads navigator.connection itself, only that class, and additionally falls back to manual mode
+// when IntersectionObserver does not exist (no observer, no way to tell "near" from "far"). No
+// copy of a deck is made: raw sends `access-control-allow-origin: *`, but answers a Range request
+// with 501, so ranges and streaming are off and the first page shown downloads the whole deck;
+// one document promise per deck is then reused. Two IntersectionObservers track how close each
+// slide is to the viewport (NEAR to trigger a render, FAR to give pixels back once it is well
+// past). In manual mode: a slide only renders when its own button is clicked, nothing is
+// prefetched, and nothing above the slides says which mode is active.
 //
 // Loading and error text live INSIDE each slide's own fixed-ratio frame (never as a sibling
 // block), so no state change ever moves the page below it: a slide-notes page also reserves
@@ -35,11 +38,12 @@ const LANG = document.documentElement.lang === "en" ? "en" : "vi";
 const T = {
   vi: {
     show: (k, size) => `Xem slide gốc ${k} (≈${size})`,
-    loadingMsg: (size) => `Đang tải slide gốc… (deck ≈${size}, chỉ tải một lần)`,
+    loadingMsg: (size) => `Đang tải slide gốc… (file PDF ≈${size}, chỉ tải một lần)`, // F9: "deck" is English jargon
     error: "Không tải được slide gốc.",
     openPdf: "Mở PDF gốc",
     alt: (k, title) => (title ? `Slide gốc ${k}: ${title}` : `Slide gốc ${k}`),
     rendered: (k) => `Đã hiện slide gốc ${k}.`,
+    retryLabel: (k) => `Thử lại slide gốc ${k}`,
     cardTitle: "Slide của chương",
     cardMeta: (pages, size) => `${pages} trang · ≈${size} · PDF gốc của tác giả, tiếng Trung`,
     cardMetaEn: (pages, size) => `${pages} trang · ≈${size} · PDF gốc của tác giả, tiếng Anh`,
@@ -55,6 +59,7 @@ const T = {
     openPdf: "Open the original PDF",
     alt: (k, title) => (title ? `Original slide ${k}: ${title}` : `Original slide ${k}`),
     rendered: (k) => `Original slide ${k} shown.`,
+    retryLabel: (k) => `Retry original slide ${k}`,
     cardTitle: "Chapter slides",
     cardMeta: (pages, size) => `${pages} pages · ≈${size} · the authors' original PDF, in Chinese`,
     cardMetaEn: (pages, size) => `${pages} pages · ≈${size} · the authors' original PDF, in English`,
@@ -81,15 +86,6 @@ function el(tag, attrs = {}, ...children) {
   for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
   node.append(...children);
   return node;
-}
-
-// ---- Save-Data: the only thing that chooses manual mode, read once per page, guarded -----
-function wantsSaveData() {
-  try {
-    return navigator.connection?.saveData === true;
-  } catch {
-    return false;
-  }
 }
 
 // ---- PDF.js, loaded once, and one document promise per deck ------------------------------
@@ -142,7 +138,7 @@ function slideTitle(heading) {
 function buildBox(item, width, height) {
   const canvas = el("canvas", { "aria-hidden": "true" });
   canvas.width = canvas.height = 0;
-  const text = el("div", { class: "textLayer" });
+  const text = el("div", { class: "textLayer", "aria-hidden": "true" });
   const msg = el("div", { class: "dill-slide__msg" });
   const box = el("div", { class: "dill-slide__box" }, canvas, text, msg);
   box.style.aspectRatio = `${width} / ${height}`;
@@ -181,7 +177,10 @@ async function drawSlide(item, page) {
     transform: ratio === 1 ? null : [ratio, 0, 0, ratio, 0, 0],
   }).promise;
 
-  const text = el("div", { class: "textLayer" });
+  // F5: aria-hidden — the canvas already carries role=img + a label, and the translated notes
+  // below carry the real text; without this, a screen reader reads the clean label and then the
+  // raw PDF text runs right after, in content-stream order (not guaranteed reading order).
+  const text = el("div", { class: "textLayer", "aria-hidden": "true" });
   const msg = el("div", { class: "dill-slide__msg" });
   const box = el("div", { class: "dill-slide__box" }, canvas, text, msg);
   box.style.aspectRatio = `${width} / ${height}`;
@@ -268,7 +267,11 @@ function setUpSlideNotes(article) {
   const key = link && link.href.match(DECK_LINK)[1];
   if (!key || !DECKS[key]) return;
   const size = mb(DECKS[key].bytes);
-  const auto = !wantsSaveData();
+  // F1: the ONLY source of truth for the mode is the `dill-auto` class the inline head script
+  // (overrides/main.html) set before first paint from its own, single Save-Data read — never a
+  // second read here. Exception: without IntersectionObserver, NEAR/FAR can never fire, so auto
+  // mode cannot work regardless of the class; fall back to manual mode.
+  const auto = "IntersectionObserver" in window && document.documentElement.classList.contains("dill-auto");
 
   const items = [];
   let pageState; // set once every item exists (needed only if there is at least one slide)
@@ -340,7 +343,14 @@ function setUpSlideNotes(article) {
     // it (and not a single-page autoFailed item, which keeps its own message) get rebuilt.
     if (item.autoFailed || item.msgKind === "deckFailed") return;
     if (item.state !== "idle" && item.state !== "released") return;
-    const retryBtn = el("button", { type: "button", class: "dill-slide__retry" }, T.retry);
+    // F8: several NEAR placeholders can fail together, each with a button visually labelled
+    // "Thử lại"/"Try again"; aria-label gives each one a distinct accessible name so a screen
+    // reader's button list does not show identical entries.
+    const retryBtn = el(
+      "button",
+      { type: "button", class: "dill-slide__retry", "aria-label": T.retryLabel(item.k) },
+      T.retry,
+    );
     retryBtn.addEventListener("click", retryDeck);
     item.msg.replaceChildren(
       el("p", { class: "dill-slide__msgtext" }, T.error),
@@ -412,6 +422,7 @@ function setUpSlideNotes(article) {
     }
     try {
       await ensureDeck(pageState.key); // success clears deckFailed and requeues itself above
+      pageState.statusEl.textContent = ""; // F4: no stale "could not load" after a successful retry
     } catch (err) {
       for (const btn of currentRetryButtons()) {
         btn.removeAttribute("aria-disabled");
@@ -622,11 +633,18 @@ function init() {
   const m = page.match(/(?:^|\/)(chapter\d+)\/(README|slides)\.md$/);
   if (!article || !m) return;
   if (m[2] === "slides") {
-    setUpSlideNotes(article);
-    // CLS fix: swap the CSS reserve (overrides/main.html's inline head script adds `dill-auto`
-    // to <html> before this module runs) for the real blocks in the same task, so the browser
-    // never has a frame with the reserve gone and the blocks not yet in.
-    document.documentElement.classList.add("dill-ready");
+    // F3: try/finally so a throw inside setUpSlideNotes still clears the CSS reserve — never
+    // leave `html.dill-auto:not(.dill-ready)` matching forever. (A second safety net lives in
+    // overrides/main.html's own `load` listener, for when this module never runs at all: a 404,
+    // a syntax error, or no ES module support.)
+    try {
+      setUpSlideNotes(article);
+    } finally {
+      // CLS fix: swap the CSS reserve (overrides/main.html's inline head script adds `dill-auto`
+      // to <html> before this module runs) for the real blocks in the same task, so the browser
+      // never has a frame with the reserve gone and the blocks not yet in.
+      document.documentElement.classList.add("dill-ready");
+    }
   } else setUpTutorial(article, m[1]);
 }
 
