@@ -169,6 +169,15 @@ def main() -> int:
         f"{out!r} ids={ids}",
     )
 
+    # A raw <h2> directly followed by an ATX heading: CommonMark swallows the ATX line into
+    # the HTML block, Python-Markdown does not, so the same text yields different heading
+    # counts (source side is counted by markdown-it, translation side by Python-Markdown).
+    # No upstream source has this today; it must stay a loud error, never a silent misroute.
+    raw_src = "# 标题\n\n见[下节](#下节)。\n\n<h2>原始</h2>\n# 下节\n\n文字。\n"
+    raw_tr = "# Tiêu đề\n\nXem [mục sau](#下节).\n\n<h2>Thô</h2>\n# Mục sau\n\nVăn bản.\n"
+    ok, msg = raises(raw_tr, r"heading count differs", page_source=raw_src)
+    check("raw <h2> then ATX heading: heading count mismatch raises", ok, msg)
+
     # --- two source headings with the same anchor key -------------------------------------
     dup_src = "# 标题\n\n见[总结](#总结)。\n\n## 总结\n\n一。\n\n## 总结\n\n二。\n"
     dup_tr = "# Tiêu đề\n\nXem [tóm tắt](#总结).\n\n## Tóm tắt A\n\nMột.\n\n## Tóm tắt B\n\nHai.\n"
