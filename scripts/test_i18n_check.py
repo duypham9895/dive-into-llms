@@ -289,9 +289,15 @@ def _prose(line: str) -> str:
             return _latin(run) + " " + " ".join(extra) + " "
         return _latin(run)
 
+    def keep(span: str) -> str:
+        # Inline code holding Han is emphasis and gets translated (policy 2026-11-12).
+        if span.startswith("`") and HAN.search(span):
+            return re.sub(f"{HAN.pattern}+", _latin, span)
+        return span
+
     out, pos = [], 0
     for m in _KEEP.finditer(line):
-        out.append(re.sub(f"{HAN.pattern}+", latin, line[pos:m.start()]) + m.group(0))
+        out.append(re.sub(f"{HAN.pattern}+", latin, line[pos:m.start()]) + keep(m.group(0)))
         pos = m.end()
     out.append(re.sub(f"{HAN.pattern}+", latin, line[pos:]))
     return "".join(out)
@@ -464,6 +470,19 @@ def run() -> int:
         pilot_fail(f"review repro: == -> != in the swallowed ch2 code ({lang})", lang,
                    lambda t: t.replace("if resp.status_code == HTTPStatus.OK:", "if resp.status_code != HTTPStatus.OK:", 1),
                    r"swallowed code 'if resp\.status_code == HTTPStatus\.OK:'")
+
+    # Inline code holding Han is translated (blind test, 2026-11-12); Latin inline code is not
+    ic_src = "# 标题\n\n**步骤1**：加载`冻结参数`。运行`train.py`。\n"
+    ic_ok = "# Tiêu đề\n\n**Bước 1**: Tải `tham số đóng băng`. Chạy `train.py`.\n"
+    ic_cases = (
+        ("inline code with Han translated: passes", ic_ok, None),
+        ("inline code with Han left in Chinese: fails", ic_ok.replace("tham số đóng băng", "冻结参数"), r"Han outside the allow-list"),
+        ("Latin inline code altered next to a translated span: fails", ic_ok.replace("train.py", "train2.py"), r"inline code .* differs"),
+    )
+    for name, tgt, pattern in ic_cases:
+        errs = check_markdown_page("documents/chapter8/README.md", "vi", ic_src, tgt, SETTINGS).errors
+        ok = not errs if pattern is None else any(re.search(pattern, e) for e in errs)
+        check(name, ok, f"{errs}")
 
     # Item 4: Han-free blocks and cells stay byte-identical; inline code spans equal
     fp_fail("English paragraph translated", FP_TGT.replace("See the original paper for details.",

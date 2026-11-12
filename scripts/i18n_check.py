@@ -77,6 +77,7 @@ import re
 import statistics
 import sys
 import tokenize
+from collections import Counter
 from dataclasses import dataclass, field
 from functools import lru_cache
 from html.parser import HTMLParser
@@ -323,6 +324,12 @@ def _inline(token) -> tuple[str, str, list[str]]:
             piece = html_text(child.content)
         elif child.type in ("softbreak", "hardbreak"):
             piece = " "
+        elif child.type == "code_inline" and HAN.search(child.content):
+            # Inline code holding Han is emphasis, not code (ch8 `冻结参数`): it is
+            # translated (Duy's blind-test scores, 2026-11-12), so it counts as visible
+            # text for the Han check, and only its count is kept ("\x01" marks it).
+            piece = child.content
+            codes.append("\x01")
         elif child.type == "code_inline":
             codes.append(child.content)
             fp.append("\x00" + child.content + "\x00")
@@ -685,8 +692,17 @@ def compare_markdown(source_rel: str, src_text: str, tgt_text: str, settings: Se
         if s.kind not in ("heading", "paragraph", "table_row", "html_block"):
             continue
         where = f"{prefix}{t.kind} line {t.line}"
-        if sorted(s.codes) != sorted(t.codes):
-            report.errors.append(f"{where}: inline code {sorted(t.codes)} differs from the source's {sorted(s.codes)}")
+        # Latin inline code must survive unchanged; each Han span of the source ("\x01")
+        # is translated, and may come back as at most one new inline-code span.
+        s_codes = Counter(c for c in s.codes if c != "\x01")
+        t_codes = Counter(c for c in t.codes if c != "\x01")
+        translated = s.codes.count("\x01")
+        lost, added = s_codes - t_codes, t_codes - s_codes
+        if lost or sum(added.values()) > translated:
+            report.errors.append(
+                f"{where}: inline code {sorted(t_codes.elements())} differs from the source's "
+                f"{sorted(s_codes.elements())} (+{translated} translated Han spans)"
+            )
         # English prose and the English few-shot rows stay byte-identical (plan, "Keep
         # byte-identical"); headings and HTML text are translated anyway.
         if s.kind == "paragraph" and not _zh(s.raw[0]) and _mask_links(s.raw[0]) != _mask_links(t.raw[0]):
