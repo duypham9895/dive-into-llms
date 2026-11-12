@@ -1,0 +1,63 @@
+site_name: Dive into LLMs (Tiếng Việt · English)
+site_description: Unofficial Vietnamese and English translation of 《动手学大模型》 Dive into LLMs
+site_url: https://duypham9895.github.io/dive-into-llms/
+repo_url: https://github.com/duypham9895/dive-into-llms
+edit_uri: ""
+copyright: >-
+  Original © the authors of 《动手学大模型》 Dive into LLMs
+  (github.com/Lordog/dive-into-llms). Translation provided without any licence grant.
+
+docs_dir: docs
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: vi
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle: {icon: material/brightness-7, name: Dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle: {icon: material/brightness-4, name: Light mode}
+
+markdown_extensions:
+  - tables
+  - md_in_html
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+  - toc:
+      permalink: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+
+# MathJax's default config already reads the \( \) delimiters arithmatex emits (ch10).
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder
+      fallback_to_default: false
+      languages:
+        - locale: vi
+          default: true
+          name: Tiếng Việt
+          build: true
+        - locale: en
+          name: English
+          build: true
+
+validation:
+  omitted_files: warn
+  absolute_links: info
+  unrecognized_links: warn
+  anchors: warn

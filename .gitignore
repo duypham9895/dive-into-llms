@@ -4,3 +4,5 @@
 .venv/
 site/
 i18n/.cache/
+.claude/
+__pycache__/
