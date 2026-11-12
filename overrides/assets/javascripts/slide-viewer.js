@@ -46,9 +46,10 @@ const T = {
     original: "Original PDF",
   },
 }[LANG];
-// The chapter 5 and chapter 8 decks are in English (their slide notes say so, and pdftotext
-// finds no Chinese in them); the card calls every other deck Chinese.
-const ENGLISH_DECKS = new Set(["chapter5/watermark.pdf", "chapter8/mllms.pdf"]);
+// Measured with pdftotext (Han characters per page): the chapter 5 and chapter 8 decks have
+// none, and the chapter 3 deck has them only on its last page (21 of 21, a course-series page),
+// so the card calls those three English. Every other deck has Chinese on 98–100% of its pages.
+const ENGLISH_DECKS = new Set(["chapter3/dive_edit_0410.pdf", "chapter5/watermark.pdf", "chapter8/mllms.pdf"]);
 
 function mb(bytes) {
   return `${(bytes / 1e6).toLocaleString(LANG === "en" ? "en-US" : "vi-VN", {
