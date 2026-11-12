@@ -1,16 +1,27 @@
-// Original-slide viewer (decision 2026-11-12, option B: auto mode), client-side only.
+// Original-slide viewer (decision 2026-11-12, option B; Amendment A: no switch), client-side
+// only.
 //
-// Slide-notes pages: a page bar (switch + note + status) sits under the h1. With the switch
-// on (the default, unless Save-Data or a stored preference says off), every slide the reader
-// has not closed renders ORIGINAL upstream deck pages by itself as the reader scrolls near
-// them, with PDF.js, read from raw.githubusercontent.com at the pinned commit. No copy of a
-// deck is made: raw sends `access-control-allow-origin: *`, but answers a Range request with
-// 501, so ranges and streaming are off and the first page shown downloads the whole deck; one
-// document promise per deck is then reused. Two IntersectionObservers track how close each
-// slide is to the viewport (NEAR to trigger a render, FAR to give pixels back once it is well
-// past). With the switch off, a slide only renders when its own button is clicked (today's
-// behaviour before this decision). Tutorial pages: a card near the top with the deck's page
-// count and size, linking the slide notes and the original PDF.
+// Slide-notes pages: unless the reader has Save-Data on (`navigator.connection.saveData ===
+// true`), every slide the reader has not closed renders ORIGINAL upstream deck pages by itself
+// as the reader scrolls near them, with PDF.js, read from raw.githubusercontent.com at the
+// pinned commit. No copy of a deck is made: raw sends `access-control-allow-origin: *`, but
+// answers a Range request with 501, so ranges and streaming are off and the first page shown
+// downloads the whole deck; one document promise per deck is then reused. Two
+// IntersectionObservers track how close each slide is to the viewport (NEAR to trigger a
+// render, FAR to give pixels back once it is well past). With Save-Data on, the page runs in
+// manual mode: a slide only renders when its own button is clicked, nothing is prefetched, and
+// nothing above the slides says which mode is active.
+//
+// Loading and error text live INSIDE each slide's own fixed-ratio frame (never as a sibling
+// block), so no state change ever moves the page below it: a slide-notes page also reserves
+// that space before first paint (see overrides/main.html's inline head script + the
+// `html.dill-auto:not(.dill-ready)` rule in slide-viewer.css) so inserting the blocks after
+// load does not shift anything either. A deck-wide failure (the deck itself could not load)
+// shows a retry button and the "open the original PDF" link on every nearby slide and
+// announces once through one hidden, page-level live region; a single page's own failure
+// (`item.autoFailed`) shows just the text and the link, since the slide's own per-slide button
+// retries it. Tutorial pages: a card near the top with the deck's page count and size, linking
+// the slide notes and the original PDF.
 // PDF.js is vendored next to this file (assets/pdfjs, Apache-2.0) and loaded on first use.
 import { COMMIT, DECKS } from "./slide-decks.js";
 
@@ -24,7 +35,7 @@ const LANG = document.documentElement.lang === "en" ? "en" : "vi";
 const T = {
   vi: {
     show: (k, size) => `Xem slide gốc ${k} (≈${size})`,
-    loading: (size) => `Đang tải PDF gốc (≈${size}). Lần xem đầu tải cả deck, các slide sau dùng lại.`,
+    loadingMsg: (size) => `Đang tải slide gốc… (deck ≈${size}, chỉ tải một lần)`,
     error: "Không tải được slide gốc.",
     openPdf: "Mở PDF gốc",
     alt: (k, title) => (title ? `Slide gốc ${k}: ${title}` : `Slide gốc ${k}`),
@@ -34,15 +45,12 @@ const T = {
     cardMetaEn: (pages, size) => `${pages} trang · ≈${size} · PDF gốc của tác giả, tiếng Anh`,
     notes: "Đọc ghi chú slide",
     original: "PDF gốc",
-    switchLabel: "Tự động hiện slide gốc khi cuộn tới",
-    switchNote: (size) => `Deck gốc ≈${size}, tải một lần khi slide đầu tiên hiện ra.`,
-    barLoading: (size) => `Đang tải PDF gốc (≈${size})…`,
     retry: "Thử lại",
     retrying: "Đang thử lại…",
   },
   en: {
     show: (k, size) => `View original slide ${k} (≈${size})`,
-    loading: (size) => `Loading the original PDF (≈${size}). The first view downloads the whole deck; later slides reuse it.`,
+    loadingMsg: (size) => `Loading the original slide… (deck ≈${size}, downloaded once)`,
     error: "Could not load the original slide.",
     openPdf: "Open the original PDF",
     alt: (k, title) => (title ? `Original slide ${k}: ${title}` : `Original slide ${k}`),
@@ -52,9 +60,6 @@ const T = {
     cardMetaEn: (pages, size) => `${pages} pages · ≈${size} · the authors' original PDF, in English`,
     notes: "Read the slide notes",
     original: "Original PDF",
-    switchLabel: "Show original slides as I scroll",
-    switchNote: (size) => `The original deck is ≈${size}, downloaded once when the first slide appears.`,
-    barLoading: (size) => `Loading the original PDF (≈${size})…`,
     retry: "Try again",
     retrying: "Retrying…",
   },
@@ -78,26 +83,12 @@ function el(tag, attrs = {}, ...children) {
   return node;
 }
 
-// ---- localStorage preference: "on" | "off", every access guarded -------------------------
-function readAutoPref() {
+// ---- Save-Data: the only thing that chooses manual mode, read once per page, guarded -----
+function wantsSaveData() {
   try {
-    const v = localStorage.getItem("dill-slides-auto");
-    if (v === "on" || v === "off") return v === "on";
+    return navigator.connection?.saveData === true;
   } catch {
-    // ignore: falls through to the Save-Data / default check below
-  }
-  try {
-    if (navigator.connection?.saveData === true) return false;
-  } catch {
-    // ignore
-  }
-  return true;
-}
-function writeAutoPref(on) {
-  try {
-    localStorage.setItem("dill-slides-auto", on ? "on" : "off");
-  } catch {
-    // ignore: the switch still works for this load, just not remembered
+    return false;
   }
 }
 
@@ -143,19 +134,31 @@ function slideTitle(heading) {
   return "";
 }
 
-// A fresh, unrendered placeholder: the aspect-ratio box (not the bordered frame around it)
-// carries the ratio, so an empty and a rendered slide are the same height to the pixel.
-function makeEmptyPlaceholder(item) {
-  const { width, height } = DECKS[item.key];
+// Every frame (fresh placeholder, rendered slide, or a released one) is built the same way:
+// a box holding the canvas, the PDF.js text layer, and an absolutely positioned message layer
+// on top (empty unless a loading or error state is showing). Carrying the aspect ratio on the
+// box, not the bordered frame, and reusing the same box for every message state, is what keeps
+// a slide's height identical whether it is empty, loading, failed, or rendered (check c).
+function buildBox(item, width, height) {
   const canvas = el("canvas", { "aria-hidden": "true" });
   canvas.width = canvas.height = 0;
   const text = el("div", { class: "textLayer" });
-  const box = el("div", { class: "dill-slide__box" }, canvas, text);
+  const msg = el("div", { class: "dill-slide__msg" });
+  const box = el("div", { class: "dill-slide__box" }, canvas, text, msg);
   box.style.aspectRatio = `${width} / ${height}`;
-  const frame = el("div", { class: "dill-slide__frame dill-slide__frame--empty" }, box);
-  item.frame = frame;
   item.canvas = canvas;
   item.text = text;
+  item.msg = msg;
+  item.msgKind = null;
+  item.retryBtn = null;
+  return box;
+}
+
+function makeEmptyPlaceholder(item) {
+  const { width, height } = DECKS[item.key];
+  const box = buildBox(item, width, height);
+  const frame = el("div", { class: "dill-slide__frame dill-slide__frame--empty" }, box);
+  item.frame = frame;
   item.view.replaceChildren(frame);
 }
 
@@ -179,7 +182,8 @@ async function drawSlide(item, page) {
   }).promise;
 
   const text = el("div", { class: "textLayer" });
-  const box = el("div", { class: "dill-slide__box" }, canvas, text);
+  const msg = el("div", { class: "dill-slide__msg" });
+  const box = el("div", { class: "dill-slide__box" }, canvas, text, msg);
   box.style.aspectRatio = `${width} / ${height}`;
   const frame = el("div", { class: "dill-slide__frame" }, box);
   frame.style.setProperty("--total-scale-factor", String(scale));
@@ -187,6 +191,9 @@ async function drawSlide(item, page) {
   item.frame = frame;
   item.canvas = canvas;
   item.text = text;
+  item.msg = msg;
+  item.msgKind = null;
+  item.retryBtn = null;
   // Keep the text layer on the canvas when the column width changes after rendering.
   if ("ResizeObserver" in window) {
     item.observer = new ResizeObserver(() => {
@@ -214,6 +221,9 @@ function release(item) {
   item.observer = null;
   item.canvas.width = item.canvas.height = 0;
   item.text.replaceChildren();
+  item.msg.replaceChildren(); // a released slide carries no loading/error text
+  item.msgKind = null;
+  item.retryBtn = null;
   item.frame.classList.add("dill-slide__frame--empty");
   item.state = "released";
 }
@@ -258,20 +268,20 @@ function setUpSlideNotes(article) {
   const key = link && link.href.match(DECK_LINK)[1];
   if (!key || !DECKS[key]) return;
   const size = mb(DECKS[key].bytes);
-  const initialAuto = readAutoPref();
+  const auto = !wantsSaveData();
 
   const items = [];
   let pageState; // set once every item exists (needed only if there is at least one slide)
 
   // ---- render orchestration: at most 2 concurrent auto renders, nearest-to-viewport first,
-  // and one enqueue guard every path (NEAR entering, switch on, retry, deck resolved) shares.
+  // and one enqueue guard every path (NEAR entering, retry, deck resolved) shares.
   const queue = [];
   let activeRenders = 0;
   const MAX_ACTIVE = 2;
 
   function canEnqueue(item) {
     return (
-      pageState.autoOn &&
+      pageState.auto &&
       !pageState.deckFailed &&
       !item.userClosed &&
       !item.autoFailed &&
@@ -295,7 +305,7 @@ function setUpSlideNotes(article) {
       const item = queue.shift();
       item.queued = false;
       // Its turn came: drop it if it is no longer near, or if anything changed since it was
-      // queued (closed by the reader, a click render already under way, switch or deck state).
+      // queued (closed by the reader, a click render already under way, deck state).
       if (!item.inNear || !canEnqueue(item)) continue;
       activeRenders++;
       runAutoRender(item).finally(() => {
@@ -305,99 +315,136 @@ function setUpSlideNotes(article) {
     }
   }
 
+  // ---- in-frame message states: loading, the shared deck-failure (retry + link), and the
+  // plain error (text + link only, used for a single page's own failure and for a click
+  // failure). Every setter first moves focus off a retry button it is about to discard, so a
+  // keyboard user is never dropped onto <body> (A2).
+  function moveFocusOffRetry(item) {
+    if (item.retryBtn && document.activeElement === item.retryBtn) item.button.focus();
+  }
+  function clearMsg(item) {
+    moveFocusOffRetry(item);
+    item.msg.replaceChildren();
+    item.msgKind = null;
+    item.retryBtn = null;
+  }
+  function showLoadingMsg(item) {
+    moveFocusOffRetry(item);
+    item.msg.replaceChildren(el("p", { class: "dill-slide__msgtext" }, T.loadingMsg(size)));
+    item.msgKind = "loading";
+    item.retryBtn = null;
+  }
+  function showDeckFailedMsg(item) {
+    // Idempotent on purpose: the near/far observers and the reader reopening a slide all call
+    // this on every qualifying item, but only idle/released items that are not already showing
+    // it (and not a single-page autoFailed item, which keeps its own message) get rebuilt.
+    if (item.autoFailed || item.msgKind === "deckFailed") return;
+    if (item.state !== "idle" && item.state !== "released") return;
+    const retryBtn = el("button", { type: "button", class: "dill-slide__retry" }, T.retry);
+    retryBtn.addEventListener("click", retryDeck);
+    item.msg.replaceChildren(
+      el("p", { class: "dill-slide__msgtext" }, T.error),
+      retryBtn,
+      el("a", { class: "dill-slide__msglink", href: link.href }, T.openPdf),
+    );
+    item.msgKind = "deckFailed";
+    item.retryBtn = retryBtn;
+  }
+  function showStaticErrorMsg(item) {
+    // Single-page auto failure (autoFailed) or a click-render failure: text and the "open the
+    // original PDF" link only — no retry button, since the per-slide button itself retries.
+    moveFocusOffRetry(item);
+    item.msg.replaceChildren(
+      el("p", { class: "dill-slide__msgtext" }, T.error),
+      el("a", { class: "dill-slide__msglink", href: link.href }, T.openPdf),
+    );
+    item.msgKind = "error";
+    item.retryBtn = null;
+  }
+
+  function currentRetryButtons() {
+    return pageState.items.filter((it) => it.msgKind === "deckFailed").map((it) => it.retryBtn);
+  }
+  function announceDeckError() {
+    // role=status does not re-announce unchanged text, but a reader needs to hear every
+    // failure (the first one, and any later failed retry): clear it, then set it on the next
+    // frame so each occurrence is a fresh text change.
+    pageState.statusEl.textContent = "";
+    requestAnimationFrame(() => {
+      pageState.statusEl.textContent = T.error;
+    });
+  }
+
   async function ensureDeck(deckKey) {
-    const firstLoad = !documents.has(deckKey);
-    if (firstLoad) pageState.statusEl.textContent = T.barLoading(pageState.size);
-    let pdf;
-    try {
-      pdf = await loadDeck(deckKey);
-    } catch (err) {
-      // Never leave the loading line behind: a failed auto render sets the error line next
-      // (onDeckFailed), a failed retry keeps it, and a failed click render or a failure while
-      // the switch is off leaves the page status empty (the slide shows its own error).
-      if (firstLoad) pageState.statusEl.textContent = pageState.deckFailed ? T.error : "";
-      throw err; // caught by the caller
-    }
+    const pdf = await loadDeck(deckKey); // rejects straight through; renderInto wraps the stage
     if (pageState.deckFailed) {
       pageState.deckFailed = false;
-      clearPageStatus();
+      // A deck-wide retry can take a while (loadDeck re-fetches the whole deck): by the time it
+      // resolves, a failed placeholder may have scrolled out of NEAR. Only the still-near ones
+      // get the loading text (enqueue, just below, is about to start them); one that scrolled
+      // away goes back to a plain empty placeholder instead of being stuck showing "loading"
+      // forever with nothing actually in flight.
+      for (const it of pageState.items) {
+        if (it.msgKind !== "deckFailed") continue;
+        if (it.inNear) showLoadingMsg(it);
+        else clearMsg(it);
+      }
       for (const it of pageState.items) if (it.inNear) enqueue(it);
-    } else if (firstLoad) {
-      clearPageStatus();
     }
     return pdf;
+  }
+
+  function onDeckFailed() {
+    const isNewFailure = !pageState.deckFailed;
+    pageState.deckFailed = true;
+    for (const it of pageState.items) it.queued = false;
+    queue.length = 0; // nothing is queued while the deck is marked failed
+    for (const it of pageState.items) if (it.inNear) showDeckFailedMsg(it);
+    if (isNewFailure) announceDeckError();
+  }
+
+  async function retryDeck() {
+    if (pageState.retrying) return;
+    pageState.retrying = true;
+    for (const btn of currentRetryButtons()) {
+      btn.setAttribute("aria-disabled", "true"); // never the `disabled` attribute: it drops focus to body
+      btn.textContent = T.retrying;
+    }
+    try {
+      await ensureDeck(pageState.key); // success clears deckFailed and requeues itself above
+    } catch (err) {
+      for (const btn of currentRetryButtons()) {
+        btn.removeAttribute("aria-disabled");
+        btn.textContent = T.retry;
+      }
+      console.warn("slide viewer:", err.cause ?? err);
+      announceDeckError();
+    } finally {
+      pageState.retrying = false;
+    }
   }
 
   async function runAutoRender(item) {
     const priorState = item.state; // "idle" or "released" (canEnqueue's own guard)
     item.state = "loading";
     item.view.setAttribute("aria-busy", "true");
+    showLoadingMsg(item); // not announced: auto renders stay silent
     try {
       await renderInto(item, ensureDeck);
       item.state = "done";
       if (item.view.hidden) release(item);
-      else if (pageState.autoOn && !item.inFar) release(item); // scrolled far away while it rendered
+      else if (pageState.auto && !item.inFar) release(item); // scrolled far away while it rendered
     } catch (err) {
       item.state = priorState;
       item.announce = false; // a later silent re-render of this slide must stay silent
-      if (pageState.autoOn) {
-        // a failure that arrives after the switch went off changes nothing (no deck-failed
-        // mark, no per-item mark): the reader is back in manual mode already.
-        if (err.stage === "deck") onDeckFailed();
-        else item.autoFailed = true; // only this page; auto never retries it, a click still can
+      if (err.stage === "deck") onDeckFailed();
+      else {
+        item.autoFailed = true; // only this page; auto never retries it, a click still can
+        showStaticErrorMsg(item);
       }
       console.warn("slide viewer:", err.cause ?? err);
     } finally {
       item.view.removeAttribute("aria-busy");
-    }
-  }
-
-  function clearPageStatus() {
-    if (document.activeElement === pageState.retryBtn) pageState.switchEl.focus();
-    pageState.statusEl.textContent = "";
-    pageState.retryBtn.hidden = true;
-    pageState.retryBtn.removeAttribute("aria-disabled");
-    pageState.retryBtn.textContent = T.retry;
-  }
-  function onDeckFailed() {
-    pageState.deckFailed = true;
-    for (const it of pageState.items) it.queued = false;
-    queue.length = 0;
-    pageState.statusEl.textContent = T.error;
-    pageState.retryBtn.hidden = false;
-    pageState.retryBtn.removeAttribute("aria-disabled");
-    pageState.retryBtn.textContent = T.retry;
-  }
-
-  function setAuto(on) {
-    pageState.autoOn = on;
-    pageState.switchEl.setAttribute("aria-checked", String(on));
-    writeAutoPref(on);
-    if (!on) {
-      for (const it of pageState.items) it.queued = false;
-      queue.length = 0;
-      const active = document.activeElement;
-      if (active && (active === pageState.retryBtn || pageState.items.some((it) => it.view.contains(active)))) {
-        pageState.switchEl.focus();
-      }
-      for (const it of pageState.items) {
-        it.button.setAttribute("aria-expanded", "false");
-        it.view.hidden = true;
-        it.status.textContent = "";
-        if (it.state === "done") release(it);
-        it.userClosed = false;
-      }
-      clearPageStatus();
-      pageState.deckFailed = false; // switch on is always a fresh attempt
-    } else {
-      for (const it of pageState.items) {
-        it.button.setAttribute("aria-expanded", "true");
-        it.view.hidden = false;
-        if (it.state === "idle") makeEmptyPlaceholder(it);
-      }
-      // A second pass: a view's position depends on every view above it being shown first.
-      for (const it of pageState.items) recomputeFlags(it); // flags were stale while hidden
-      for (const it of pageState.items) if (it.inNear) enqueue(it); // no observer callback comes
     }
   }
 
@@ -415,7 +462,7 @@ function setUpSlideNotes(article) {
     const status = el("p", { class: "dill-slide__status", role: "status" });
     // state: idle → loading → done; hiding a done slide makes it released, and showing a
     // released slide loads it again; error retries on click. drawSlide/makeEmptyPlaceholder
-    // add frame/canvas/text/observer to the item, and release() empties them.
+    // add frame/canvas/text/msg/observer to the item, and release() empties them.
     const item = {
       view,
       button,
@@ -430,60 +477,60 @@ function setUpSlideNotes(article) {
       inNear: false,
       inFar: false,
       queued: false,
+      msgKind: null,
+      retryBtn: null,
     };
     items.push(item);
     heading.after(el("div", { class: "dill-slide" }, button, status, view));
 
     button.addEventListener("click", async () => {
-      if (button.getAttribute("aria-expanded") === "true" && item.state !== "error") {
+      if (button.getAttribute("aria-expanded") === "true" && item.state !== "error" && !item.autoFailed) {
         button.setAttribute("aria-expanded", "false");
         view.hidden = true;
         status.textContent = ""; // the live region never describes a slide the reader closed
         if (item.state === "done") release(item); // a slide still loading is released when it finishes
-        if (pageState.autoOn) item.userClosed = true;
+        if (pageState.auto) item.userClosed = true;
         return;
       }
       button.setAttribute("aria-expanded", "true");
       view.hidden = false;
-      if (pageState.autoOn) item.userClosed = false;
+      if (pageState.auto) item.userClosed = false;
       recomputeFlags(item); // stale while hidden; a finish-time release decision reads it next
       if (item.state === "loading") {
         item.announce = true; // a click on a slide whose silent auto render is in flight
         return; // the render under way finishes into the shown view
       }
-      // A slide that already has its frame (a released slide, or an auto-mode placeholder) keeps
-      // it while it renders, so the page does not move; otherwise show today's loading line.
-      if (!item.frame || !view.contains(item.frame)) {
-        view.replaceChildren(el("p", { class: "dill-slide__loading" }, T.loading(size)));
+      if (!item.frame) makeEmptyPlaceholder(item); // manual mode / first open: build the frame now
+      // Reopening into a known deck-wide failure shows the same shared message (with its own
+      // retry button) instead of guaranteeing another failed attempt; a single-page autoFailed
+      // item is unaffected and always gets its own fresh attempt below (today's click path).
+      if (pageState.deckFailed && !item.autoFailed) {
+        showDeckFailedMsg(item);
+        return;
       }
       item.state = "loading";
+      item.autoFailed = false; // a click always gets a fresh attempt
       item.announce = true; // a click render is always announced, as today
       view.setAttribute("aria-busy", "true");
       status.textContent = "";
+      showLoadingMsg(item);
       try {
         await renderInto(item, ensureDeck);
         item.state = "done";
         if (view.hidden) release(item); // hidden again while it rendered
-        else if (pageState.autoOn && !item.inFar) release(item); // scrolled far while it rendered
+        else if (pageState.auto && !item.inFar) release(item); // scrolled far while it rendered
       } catch (err) {
         item.state = "error";
         item.announce = false;
         console.warn("slide viewer:", err.cause ?? err);
-        view.replaceChildren(
-          el(
-            "p",
-            { class: "dill-slide__error" },
-            `${T.error} `,
-            el("a", { href: link.href }, T.openPdf),
-          ),
-        );
+        showStaticErrorMsg(item); // today's per-slide error, now inside the frame
         if (!view.hidden) status.textContent = T.error; // a slide closed while loading fails silently
       } finally {
         view.removeAttribute("aria-busy");
       }
     });
 
-    if (initialAuto) {
+    if (auto) {
       button.setAttribute("aria-expanded", "true");
       view.hidden = false;
       makeEmptyPlaceholder(item);
@@ -492,41 +539,15 @@ function setUpSlideNotes(article) {
 
   if (!items.length) return; // en ch5/ch8 stub pages: a deck link but no slide headings
 
-  const switchEl = el(
-    "button",
-    { type: "button", class: "dill-bar__switch", role: "switch", "aria-checked": String(initialAuto) },
-    el("span", { class: "dill-bar__switch-track", "aria-hidden": "true" }, el("span", { class: "dill-bar__switch-thumb" })),
-    el("span", { class: "dill-bar__switch-label" }, T.switchLabel),
-  );
-  const note = el("p", { class: "dill-bar__note" }, T.switchNote(size));
-  const statusEl = el("p", { class: "dill-bar__status", role: "status" });
-  const retryBtn = el("button", { type: "button", class: "dill-bar__retry", hidden: "" }, T.retry);
-  const bar = el(
-    "div",
-    { class: "dill-bar" },
-    el("div", { class: "dill-bar__row" }, switchEl, note),
-    el("div", { class: "dill-bar__statusrow" }, statusEl, retryBtn),
-  );
+  // The one page-level live region for a deck-wide failure (visually hidden, same technique as
+  // the per-slide status above). Nothing on the page is visible for this beyond the per-slide
+  // messages, so it is the only clue a screen reader gets that the deck itself failed.
+  const statusEl = el("p", { class: "dill-slide__status", role: "status" });
   const h1 = article.querySelector("h1");
-  if (h1) h1.after(bar);
-  else article.prepend(bar);
+  if (h1) h1.after(statusEl);
+  else article.prepend(statusEl);
 
-  pageState = { items, key, size, autoOn: initialAuto, deckFailed: false, switchEl, statusEl, retryBtn };
-
-  switchEl.addEventListener("click", () => setAuto(switchEl.getAttribute("aria-checked") !== "true"));
-
-  retryBtn.addEventListener("click", async () => {
-    if (retryBtn.getAttribute("aria-disabled") === "true") return;
-    retryBtn.setAttribute("aria-disabled", "true");
-    retryBtn.textContent = T.retrying;
-    try {
-      await ensureDeck(pageState.key); // success clears status/deckFailed and requeues itself
-    } catch (err) {
-      retryBtn.removeAttribute("aria-disabled");
-      retryBtn.textContent = T.retry;
-      console.warn("slide viewer:", err);
-    }
-  });
+  pageState = { items, key, size, auto, deckFailed: false, retrying: false, statusEl };
 
   // Hash navigation: only on an actual link click (not reload/back-forward, where the browser
   // restores the reader's own position), and only after every placeholder above exists, so the
@@ -548,7 +569,9 @@ function setUpSlideNotes(article) {
       for (const entry of entries) {
         const item = itemsByView.get(entry.target);
         item.inNear = entry.isIntersecting;
-        if (entry.isIntersecting) enqueue(item);
+        if (!entry.isIntersecting) continue;
+        if (pageState.deckFailed) showDeckFailedMsg(item); // nothing is queued while failed
+        else enqueue(item);
       }
     },
     { root: null, rootMargin: "100% 0px" },
@@ -558,7 +581,7 @@ function setUpSlideNotes(article) {
       for (const entry of entries) {
         const item = itemsByView.get(entry.target);
         item.inFar = entry.isIntersecting;
-        if (!entry.isIntersecting && pageState.autoOn && item.state === "done") release(item);
+        if (!entry.isIntersecting && pageState.auto && item.state === "done") release(item);
       }
     },
     { root: null, rootMargin: "300% 0px" },
@@ -598,8 +621,13 @@ function init() {
   const page = document.querySelector('meta[name="dill-page"]')?.content || "";
   const m = page.match(/(?:^|\/)(chapter\d+)\/(README|slides)\.md$/);
   if (!article || !m) return;
-  if (m[2] === "slides") setUpSlideNotes(article);
-  else setUpTutorial(article, m[1]);
+  if (m[2] === "slides") {
+    setUpSlideNotes(article);
+    // CLS fix: swap the CSS reserve (overrides/main.html's inline head script adds `dill-auto`
+    // to <html> before this module runs) for the real blocks in the same task, so the browser
+    // never has a frame with the reserve gone and the blocks not yet in.
+    document.documentElement.classList.add("dill-ready");
+  } else setUpTutorial(article, m[1]);
 }
 
 init(); // module scripts run after the document is parsed
