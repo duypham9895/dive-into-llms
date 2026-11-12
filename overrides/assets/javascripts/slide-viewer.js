@@ -44,6 +44,10 @@ const T = {
     alt: (k, title) => (title ? `Slide gốc ${k}: ${title}` : `Slide gốc ${k}`),
     rendered: (k) => `Đã hiện slide gốc ${k}.`,
     retryLabel: (k) => `Thử lại slide gốc ${k}`,
+    // F11: the accessible name while retrying (visible text swaps to T.retrying) starts with
+    // the same words as that visible text, so it stays a Label in Name match (WCAG 2.5.3)
+    // instead of going silently stale under the disabled state.
+    retryingLabel: (k) => `Đang thử lại slide gốc ${k}`,
     cardTitle: "Slide của chương",
     cardMeta: (pages, size) => `${pages} trang · ≈${size} · PDF gốc của tác giả, tiếng Trung`,
     cardMetaEn: (pages, size) => `${pages} trang · ≈${size} · PDF gốc của tác giả, tiếng Anh`,
@@ -61,6 +65,8 @@ const T = {
     rendered: (k) => `Original slide ${k} shown.`,
     // Starts with the visible text "Try again" (WCAG 2.5.3 Label in Name, for voice control).
     retryLabel: (k) => `Try again: original slide ${k}`,
+    // F11: same Label in Name rule, while the button's visible text is T.retrying ("Retrying…").
+    retryingLabel: (k) => `Retrying: original slide ${k}`,
     cardTitle: "Chapter slides",
     cardMeta: (pages, size) => `${pages} pages · ≈${size} · the authors' original PDF, in Chinese`,
     cardMetaEn: (pages, size) => `${pages} pages · ≈${size} · the authors' original PDF, in English`,
@@ -347,11 +353,10 @@ function setUpSlideNotes(article) {
     // F8: several NEAR placeholders can fail together, each with a button visually labelled
     // "Thử lại"/"Try again"; aria-label gives each one a distinct accessible name so a screen
     // reader's button list does not show identical entries.
-    const retryBtn = el(
-      "button",
-      { type: "button", class: "dill-slide__retry", "aria-label": T.retryLabel(item.k) },
-      T.retry,
-    );
+    const retryBtn = el("button", { type: "button", class: "dill-slide__retry" });
+    // A placeholder that scrolls into NEAR while a retry is already in flight joins that retry's
+    // state, so it never offers a "Thử lại" that does nothing (retryDeck ignores clicks then).
+    setRetryState(retryBtn, item.k, pageState.retrying);
     retryBtn.addEventListener("click", retryDeck);
     item.msg.replaceChildren(
       el("p", { class: "dill-slide__msgtext" }, T.error),
@@ -373,8 +378,20 @@ function setUpSlideNotes(article) {
     item.retryBtn = null;
   }
 
-  function currentRetryButtons() {
-    return pageState.items.filter((it) => it.msgKind === "deckFailed").map((it) => it.retryBtn);
+  // One place sets a retry button's visible text, accessible name and aria-disabled together, so
+  // the name always starts with the visible words (F11, WCAG 2.5.3). Never the `disabled`
+  // attribute: it drops focus to body.
+  function setRetryState(btn, k, retrying) {
+    btn.textContent = retrying ? T.retrying : T.retry;
+    btn.setAttribute("aria-label", retrying ? T.retryingLabel(k) : T.retryLabel(k));
+    if (retrying) btn.setAttribute("aria-disabled", "true");
+    else btn.removeAttribute("aria-disabled");
+  }
+
+  // Returns the items, not just their buttons: F11 needs each item's own `k` to rebuild its
+  // retry button's accessible name (retrying vs. not) alongside its visible text.
+  function currentFailedItems() {
+    return pageState.items.filter((it) => it.msgKind === "deckFailed");
   }
   function announceDeckError() {
     // role=status does not re-announce unchanged text, but a reader needs to hear every
@@ -417,18 +434,15 @@ function setUpSlideNotes(article) {
   async function retryDeck() {
     if (pageState.retrying) return;
     pageState.retrying = true;
-    for (const btn of currentRetryButtons()) {
-      btn.setAttribute("aria-disabled", "true"); // never the `disabled` attribute: it drops focus to body
-      btn.textContent = T.retrying;
-    }
+    for (const it of currentFailedItems()) setRetryState(it.retryBtn, it.k, true);
     try {
       await ensureDeck(pageState.key); // success clears deckFailed and requeues itself above
       pageState.statusEl.textContent = ""; // F4: no stale "could not load" after a successful retry
     } catch (err) {
-      for (const btn of currentRetryButtons()) {
-        btn.removeAttribute("aria-disabled");
-        btn.textContent = T.retry;
-      }
+      // Clear the flag first, so the buttons rebuilt below and any placeholder built later start
+      // in the idle state.
+      pageState.retrying = false;
+      for (const it of currentFailedItems()) setRetryState(it.retryBtn, it.k, false);
       console.warn("slide viewer:", err.cause ?? err);
       announceDeckError();
     } finally {
