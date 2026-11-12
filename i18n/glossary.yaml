@@ -1,0 +1,2615 @@
+# Glossary for the vi/en translation of Lordog/dive-into-llms @ f84c042 (《动手学大模型》).
+# Generated 2026-11-12. Review by Duy pending. Han in this file is source data, not page text.
+convention: "G3 = A (decided by Duy, 2026-11-12). In Vietnamese pages, SPECIALISED technical terms stay in English (fine-tuning, prompt, agent, token, RLHF, jailbreak, watermark, embedding, ...) and get a short Vietnamese gloss in parentheses at their first use in each chapter page (and each slide-notes page); later uses in the same page are bare English. ORDINARY words that have a settled Vietnamese form a Vietnamese CS student reads without hesitation are written in Vietnamese (mô hình, dữ liệu, huấn luyện, đánh giá, tham số, triển khai, học tăng cường, ...). Names of tools, models, datasets, libraries, methods, companies and people are written in their Latin form and never translated. Every term is listed below with keep_english_in_vi true or false, so the boundary is never decided ad hoc per chapter; a term not listed here is ordinary Vietnamese unless a reviewer adds it. English pages use the 'en' value. English pages use US spelling. Entries whose en/vi contain ' | ' are context-dependent: the 'note' gives the rule. Chapter 0 = top README; chapters were found by string search over the 12 READMEs, the ch4/ch9/ch11 notebooks and the slide text cache."
+terms:
+  - zh: "推理"
+    en: "inference | reasoning"
+    vi: "inference | suy luận"
+    vi_gloss: "inference = chạy mô hình đã huấn luyện để sinh đầu ra"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 4, 6, 7, 8, 9, 10]
+    note: "AMBIGUOUS. 'inference' when it is about running a trained model: 推理代码, 推理后端, 推理速度/开销/成本, 一键式推理, 'after training we run 推理', 部署/推理. vi keeps 'inference' + gloss. 'reasoning' when it is a cognitive skill or a chain of steps: 数学推理, 逻辑推理, 常识推理, 思维链推理, 推理路径, 推理能力, 推理步骤, 长推理模型; vi writes 'suy luận' (ordinary Vietnamese). 自然语言推理 = natural language inference (NLI, a task name). ch2 subtitle 'API调用与推理指南' = reasoning (the chapter is prompting + CoT). ch6 'Inference（推理）' = EasyJailbreak's own English 'Inference' stage: keep 'Inference'."
+  - zh: "对齐"
+    en: "alignment"
+    vi: "alignment"
+    vi_gloss: "căn chỉnh hành vi mô hình theo ý định, giá trị và yêu cầu an toàn của con người"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 4, 6, 8, 9, 10, 11]
+    note: "AMBIGUOUS. (1) AI/value/safety sense (对齐 in ch1, ch6, ch9, ch10, ch11; 安全对齐, 价值观对齐, 对齐模型, 内生对齐): 'alignment' + the gloss. (2) Representation sense in ch8 (多模态对齐, 编码端/解码端对齐训练): en 'alignment', vi 'alignment' with gloss 'căn chỉnh biểu diễn của các modality với LLM'. (3) Ordinary layout/arithmetic sense (ch2 slide 位数对齐 = aligning digits; 对齐于人类安全共识 in ch10 = 'consistent with'): plain words, en 'align digits / consistent with', vi 'căn thẳng chữ số / phù hợp với'."
+  - zh: "大模型"
+    en: "large model"
+    vi: "mô hình lớn"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    note: "AMBIGUOUS vs 模型. 大模型 = large (foundation-scale) model in general, including multimodal ones; en 'large model', vi 'mô hình lớn'. Use 'LLM' only where the source writes LLM, 大语言模型 or 大规模语言模型. Never collapse 大模型 into plain 'model'. Fixed titles: 《动手学大模型》 = 'Dive into LLMs' (book title, see allowlist); chapter titles '动手学大模型：X' = 'Dive into LLMs: X'."
+  - zh: "模型"
+    en: "model"
+    vi: "mô hình"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    note: "Plain 'model' (any size). See 大模型 for the distinction."
+  - zh: "智能体"
+    en: "agent"
+    vi: "agent"
+    vi_gloss: "tác tử AI: hệ thống dùng mô hình để tự lập kế hoạch, gọi công cụ và hành động trong môi trường"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 9, 10, 11]
+    note: "AMBIGUOUS only in surface form: 智能体, 代理 (ch10 slide '良性代理') and the English Agent/Agents all = 'agent'. ch11 RL sense (智能体 in 强化学习) is the same word: keep 'agent', gloss 'bên ra quyết định trong học tăng cường'. Plural 'agents' in en; vi does not inflect ('các agent'). 多智能体 = multi-agent; GUI智能体 = GUI agent; 大模型智能体 = LLM agent (en) / 'LLM agent' (vi)."
+  - zh: "token"
+    en: "token"
+    vi: "token"
+    vi_gloss: "đơn vị văn bản nhỏ nhất mà mô hình đọc và sinh (một từ, một phần từ hoặc một ký tự)"
+    keep_english_in_vi: true
+    chapters: [1, 2, 3, 4, 5, 6, 7, 8, 10, 11]
+    note: "AMBIGUOUS surface forms. The sources mostly write 'token' in Latin. 词元 does not occur. 标记: = token in ch11 (序列中标记的对数概率) and ch2 slide (最大标记 Max Tokens); = tag/marker in ch4 (<think>标记 = '<think> tag'; 来标记答案 = 'to mark the answer'); vi: 'thẻ <think>' / 'đánh dấu'. 代币 (ch6, inside the quoted DAN/DUDE jailbreak prompts) = game-style reward points the prompt calls 'tokens': en 'tokens', vi 'token (điểm thưởng trong lời nhắc)'. Tokenizer/分词器, tokenize/分词: see 分词."
+  - zh: "指令"
+    en: "instruction"
+    vi: "instruction"
+    vi_gloss: "yêu cầu/chỉ dẫn bằng ngôn ngữ tự nhiên giao cho mô hình"
+    keep_english_in_vi: true
+    chapters: [1, 2, 4, 6, 8, 9, 10]
+    note: "AMBIGUOUS vs command. 指令 = 'instruction' everywhere (用户指令, 任务指令, 指令遵循, 恶意指令, 指令数据, 动作指令 = action instruction). 命令 / 命令行 / ADB命令 / 文本命令 (ch8 LLM as controller) = 'command' / 'command line': vi 'lệnh' / 'dòng lệnh' (ordinary Vietnamese). Compounds: 指令微调 / 指令调整 = instruction tuning; 指令遵循 / 指令跟随 = instruction following; 指令模板 = instruction template."
+  - zh: "命令"
+    en: "command"
+    vi: "lệnh"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 5, 6, 8, 9]
+    note: "See 指令. 命令行 = command line (vi 'dòng lệnh'). Shell commands themselves are code: never translated."
+  - zh: "评估"
+    en: "evaluation"
+    vi: "đánh giá"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 3, 4, 5, 6, 7, 10, 11]
+    note: "AMBIGUOUS trio 评估 / 评测 / 测评: all three = 'evaluate / evaluation' (en), 'đánh giá' (vi). When the object is a standard test suite (评测集, 测试基准, 基准测试, Benchmark) write 'benchmark' (see 基准). EasyEdit's module name 'Evaluate' and EasyJailbreak's 'Evaluator' are identifiers: verbatim. 评估器 (ch10, GPT-4 as automatic 评估器) = 'evaluator', vi 'evaluator (bộ đánh giá tự động)'."
+  - zh: "评测"
+    en: "evaluation"
+    vi: "đánh giá"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 4, 10]
+    note: "Same rule as 评估. 评测集 = evaluation set / benchmark."
+  - zh: "测评"
+    en: "evaluation"
+    vi: "đánh giá"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 10]
+    note: "Same rule as 评估. R-Judge 测评平台 = R-Judge evaluation platform."
+  - zh: "攻击"
+    en: "attack"
+    vi: "tấn công"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 5, 6, 7, 9, 10]
+    note: "AMBIGUOUS in strength. Ordinary word; vi 'tấn công'. Modifiers that are terms of art stay English inside the Vietnamese phrase: 越狱攻击 'tấn công jailbreak', 注入攻击 'tấn công injection', 后门攻击 'tấn công backdoor', 对抗攻击 'tấn công adversarial', 侧信道攻击 'tấn công side-channel'. In ch5, 攻击 = watermark-removal transformations (paraphrase, translation), not hacking: en 'attack' (the source's own word), vi 'tấn công xoá watermark'; do not dramatise. 攻击者 = attacker ('kẻ tấn công')."
+  - zh: "隐写"
+    en: "steganography"
+    vi: "steganography"
+    vi_gloss: "kỹ thuật giấu tin: giấu thông điệp bí mật bên trong một nội dung trông bình thường"
+    keep_english_in_vi: true
+    chapters: [0, 7]
+    note: "AMBIGUOUS by part of speech. 隐写术 / 隐写 (field, noun) = 'steganography'. 隐写文本 = 'stegotext' (en), vi 'văn bản chứa tin giấu (stegotext)'. 隐写嵌入 / 隐写 as a verb = 'embed (hidden information)', vi 'nhúng tin'. 大模型隐写 = LLM-based steganography. 隐写分析 = steganalysis (separate entry). Never translate 隐写 as encryption: the ch7 slides contrast the two."
+  - zh: "水印"
+    en: "watermark"
+    vi: "watermark"
+    vi_gloss: "dấu ẩn được nhúng vào văn bản do mô hình sinh để sau này máy phát hiện được"
+    keep_english_in_vi: true
+    chapters: [0, 5, 7]
+    note: "AMBIGUOUS by part of speech. Noun 'watermark'; 水印嵌入 = watermark embedding (vi 'nhúng watermark'); 水印检测 = watermark detection; 水印强度 = watermark strength (measured as a z-score); 有水印/无水印文本 = watermarked / unwatermarked text. In ch7, 水印 is presented as a robustness-oriented cousin of steganography: keep 'watermark'. Not the same as 徽章 (badge) in the top README."
+  - zh: "分词"
+    en: "tokenization | word segmentation"
+    vi: "tokenize | tách từ"
+    vi_gloss: "tokenize = cắt văn bản thành token"
+    keep_english_in_vi: true
+    chapters: [4, 10, 11]
+    note: "AMBIGUOUS. ch4, ch11 (对每条文本进行分词; tokenize=False表示不进行分词) = 'tokenize / tokenization', vi keeps 'tokenize'. ch10 slide task list (代表任务：分词、实体识别) = Chinese 'word segmentation', vi 'tách từ'. 分词器 = tokenizer (separate entry)."
+  - zh: "策略"
+    en: "policy | strategy"
+    vi: "policy | chiến lược"
+    vi_gloss: "policy = quy tắc agent dùng để chọn hành động trong từng trạng thái"
+    keep_english_in_vi: true
+    chapters: [1, 2, 4, 6, 9, 11]
+    note: "AMBIGUOUS. RL sense (ch11 策略, 策略网络, 策略梯度, 策略优化; ch4 GRPO 分组相对策略优化; ch9 自主探索优化策略) = 'policy', vi keeps 'policy'. Everywhere else (投票策略, 训练策略, 解码策略, 交叉策略, 突变策略, 'Strategic Decoding Strategy') = 'strategy', vi 'chiến lược'."
+  - zh: "基座"
+    en: "base model | foundation model"
+    vi: "base model | foundation model"
+    vi_gloss: "base model = mô hình mới pre-train, chưa instruction tuning; foundation model = mô hình nền dùng chung cho nhiều ứng dụng"
+    keep_english_in_vi: true
+    chapters: [1, 4, 9]
+    note: "AMBIGUOUS. 基座模型 in ch4 (Qwen2.5-Math-1.5B是一个基座模型，未经过指令微调) and 基模 = 'base model'. 智能体基座 / 多模态基座 / GUI领域开源强基座模型 (ch1, ch9, ch10) = 'foundation model' (agent foundation model, multimodal foundation model). 基础模型 in the ch1 slide pipeline table = 'base model'. 实验的基底 (ch4) = 'starting model'."
+  - zh: "可靠性"
+    en: "reliability"
+    vi: "độ tin cậy"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [3, 9, 10]
+    note: "AMBIGUOUS. In ch3, 可靠性/通用性/局部性/可移植性 are EasyEdit's metric names = 'Reliability', 'Generalization', 'Locality', 'Portability' (capitalised, kept in English in vi with a one-line gloss each). In ch9/ch10 (可靠性风险, GUI智能体的可靠性) = ordinary 'reliability', vi 'độ tin cậy'. Do not confuse with 置信度 (confidence)."
+  - zh: "置信度"
+    en: "confidence"
+    vi: "confidence"
+    vi_gloss: "mức chắc chắn mô hình gán cho dự đoán của nó"
+    keep_english_in_vi: true
+    chapters: [9, 10]
+    note: "Kept English in vi so it never collides with 可靠性 'độ tin cậy'. 置信度分数 = confidence score; 基于置信度的自适应人机交互 = confidence-based adaptive human-agent interaction."
+  - zh: "安全"
+    en: "safety | security"
+    vi: "an toàn | bảo mật"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 6, 7, 9, 10, 11]
+    note: "AMBIGUOUS. 'safety' / 'an toàn' when it is about harmful model or agent behaviour: 内容安全, 安全对齐, 安全标签, 安全判断, 智能体安全, 大模型安全, 安全培训, 安全意识. 'security' / 'bảo mật' when it is about attacks on systems, networks or data: 计算机安全, 网络安全, 系统安全, 信息安全, 网络空间安全, 'AES' context. Course 《人工智能安全技术》 = 'Artificial Intelligence Security Technology' (allowlist). Chapter title 智能体安全 (ch10) = 'Agent Safety'. ch10 covers both: decide per sentence."
+  - zh: "提示"
+    en: "prompt"
+    vi: "prompt"
+    vi_gloss: "đầu vào bằng văn bản đưa cho mô hình để yêu cầu nó làm một việc"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 4, 5, 6, 7, 9, 10]
+    note: "AMBIGUOUS. Noun for model input (提示, 提示词, 越狱提示, 系统提示, 提示模板) = 'prompt'. Verb or ordinary sense = plain words: 安全提醒 'safety reminder' ('lời nhắc an toàn'); 提示模型生成回复的位置 = 'indicates where the model should respond' ('chỉ cho mô hình'); 'Note:' style 提示 = 'lưu ý'. 提示学习 and 提示工程 are separate entries."
+  - zh: "演示"
+    en: "demonstration | demo"
+    vi: "demonstration | demo"
+    vi_gloss: "demonstration = ví dụ mẫu (câu hỏi + lời giải) đặt trong prompt"
+    keep_english_in_vi: true
+    chapters: [1, 2, 8, 9]
+    note: "AMBIGUOUS. ch2 CoT context (思维链演示, 演示抽样, 少样本学习的演示) = 'demonstration' (in-context example). ch1/ch8 (演示代码, 运行演示, Demo部署) = 'demo' (a runnable showcase). Both kept English in vi."
+  - zh: "脚本"
+    en: "notebook | script"
+    vi: "notebook | script"
+    vi_gloss: "notebook = tệp Jupyter gồm code và lời giải thích; script = tệp lệnh chạy được"
+    keep_english_in_vi: true
+    chapters: [0, 1, 8, 10, 11]
+    note: "AMBIGUOUS. In the top README table column 脚本, every link targets a .ipynb file = 'Notebook' (column header). In ch1/ch8/ch10 prose (执行下述脚本, train.sh脚本, 运行脚本) = 'script'. HF's '[脚本](...run_language_modeling.py)' in ch11 = 'script'. vi keeps 'notebook' / 'script'."
+  - zh: "标题"
+    en: "title | caption"
+    vi: "tiêu đề | caption"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [6, 8]
+    note: "AMBIGUOUS. ch8 2.5.2 (图像、音频和视频标题的文本嵌入; args[1]: 标题文件路径) = 'caption' (text description paired with an image/audio/video), vi 'caption (chú thích mô tả)'. Elsewhere (ch6 只需提供标题或摘要) = 'title/headline', vi 'tiêu đề'."
+  - zh: "断点"
+    en: "checkpoint"
+    vi: "checkpoint"
+    vi_gloss: "bản lưu trọng số mô hình tại một thời điểm huấn luyện"
+    keep_english_in_vi: true
+    chapters: [8, 9]
+    note: "AMBIGUOUS. In ch9 (存放断点和log的路径; 训练后的断点路径) 断点 means a training checkpoint, NOT a debugger breakpoint. Same target as 检查点 and the Latin 'checkpoint'."
+  - zh: "嵌入"
+    en: "embed | embedding"
+    vi: "nhúng | embedding"
+    vi_gloss: "embedding = vector số biểu diễn ý nghĩa của văn bản/ảnh/âm thanh"
+    keep_english_in_vi: true
+    chapters: [0, 5, 7, 8, 9]
+    note: "AMBIGUOUS by part of speech. Verb (ch5, ch7: 嵌入水印, 将信息嵌入到文本里) = 'embed', vi 'nhúng'. Noun (ch8 嵌入向量, 文本嵌入, embedding 文件) = 'embedding', vi keeps 'embedding'. 嵌入率 (ch7) = embedding rate."
+  - zh: "自我反思"
+    en: "self-reflection | Reflexion"
+    vi: "tự phản tư | Reflexion"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 4]
+    note: "AMBIGUOUS. ch2 '自我反思（Reflexion）' = the named method Reflexion: verbatim, do not translate. ch4 (思维链特征：自我反思; R1的回复中包含自我反思) = the behaviour 'self-reflection', vi 'tự phản tư' (or 'tự xem lại lời giải')."
+  - zh: "环境"
+    en: "environment"
+    vi: "môi trường"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    note: "AMBIGUOUS in referent only: software environment (conda环境, 安装环境, 环境准备 = 'environment setup', vi 'cài đặt môi trường') vs agent/RL environment (ch2, ch9, ch10, ch11). Same words in both cases; in ch11 RL, 'Environment' given in parentheses by the source stays in parentheses."
+  - zh: "解码"
+    en: "decoding"
+    vi: "giải mã"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 4, 7, 8]
+    note: "Two senses, same words: text-generation decoding (贪婪解码 greedy decoding, 解码器) and steganographic decoding in ch7 (extracting the hidden bits). Keep 'giải mã' for both; never 'decryption' (解密 = decrypt, see 加密)."
+  - zh: "编码"
+    en: "encoding | coding"
+    vi: "mã hóa"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 6, 7, 8]
+    note: "ch7 霍夫曼编码 / 固定长度编码 = Huffman coding / fixed-length coding; ch8 多模态编码 = multimodal encoding; ch6 加密编码 = encoding by cipher. Where 编码 and 加密 appear in the same passage (ch6, ch7), write 'mã hóa (encoding)' vs 'mã hóa bảo mật (encryption)' so the two stay distinct."
+  - zh: "加密"
+    en: "encryption / encrypt"
+    vi: "mã hóa bảo mật"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [6, 7, 10]
+    note: "Vietnamese 'mã hóa' alone also means encoding; use 'mã hóa bảo mật' (encryption) whenever 编码 is nearby. 解密 = decrypt ('giải mã bảo mật'); 密文 = ciphertext ('bản mã'); 明文 = plaintext ('bản rõ'); 密钥 = key ('khóa')."
+  - zh: "验证"
+    en: "validation | verification"
+    vi: "kiểm định | kiểm chứng"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 3, 4, 6, 9, 10, 11]
+    note: "AMBIGUOUS. ch1 训练/验证/预测 and 在开发集上验证 = 'validation' (on the dev set), vi 'kiểm định (validation)'. ch3, ch4, ch9 (对编辑后的模型进行验证, 答案验证, 推理验证, 验算) = 'verification / check', vi 'kiểm chứng'. 验算 = re-checking a calculation ('tính lại để kiểm tra')."
+  - zh: "价值"
+    en: "value | values"
+    vi: "value | giá trị"
+    vi_gloss: "value (RL) = tổng phần thưởng kỳ vọng từ một trạng thái"
+    keep_english_in_vi: true
+    chapters: [1, 2, 6, 9, 10, 11]
+    note: "AMBIGUOUS. RL (ch11 价值函数, 值头, Value-based) = 'value', vi keeps 'value'. Human 价值观 (ch1, ch6, ch10, ch11) = 'human values', vi 'hệ giá trị'. Ordinary 价值 (实用价值, 更有价值) = plain 'value', vi 'giá trị'."
+  - zh: "科学上网"
+    en: "use a VPN / proxy"
+    vi: "dùng VPN"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2]
+    note: "Chinese euphemism (also 科学手段, 科学获取) for getting around the network block on OpenAI, Hugging Face etc. in mainland China. Translate the meaning ('needs a VPN or proxy from mainland China'), not the words; keep it factual."
+  - zh: "国产化"
+    en: "built on China-made (domestic) hardware and software"
+    vi: "trên nền tảng phần cứng/phần mềm nội địa Trung Quốc"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 4, 6, 7]
+    note: "Top README only: 国产化《大模型开发全流程》 = the course built on the Huawei Ascend stack. 国产接口 / 国产AI大模型 (ch2, ch1 slide) = 'Chinese (domestic) APIs / models'. 国内 (国内源, 国内可以通过...镜像) = 'inside mainland China'."
+  - zh: "大语言模型"
+    en: "large language model (LLM)"
+    vi: "mô hình ngôn ngữ lớn (LLM)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 4, 7, 8, 9, 10, 11]
+    note: "First mention per chapter: 'mô hình ngôn ngữ lớn (LLM)'; afterwards 'LLM'. Variants 大规模语言模型, 大型语言模型 map here too."
+  - zh: "LLM"
+    en: "LLM"
+    vi: "LLM"
+    vi_gloss: "mô hình ngôn ngữ lớn"
+    keep_english_in_vi: true
+    chapters: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    note: "Where the source writes 'LLM' in Latin, keep it."
+  - zh: "语言模型"
+    en: "language model"
+    vi: "mô hình ngôn ngữ"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11]
+    note: ""
+  - zh: "预训练语言模型"
+    en: "pre-trained language model"
+    vi: "mô hình ngôn ngữ pre-trained"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1]
+    note: "Hybrid form: Vietnamese head + English 'pre-trained'."
+  - zh: "数据"
+    en: "data"
+    vi: "dữ liệu"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    note: ""
+  - zh: "数据集"
+    en: "dataset"
+    vi: "tập dữ liệu"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 4, 6, 8, 9, 11]
+    note: ""
+  - zh: "训练集"
+    en: "training set"
+    vi: "tập huấn luyện"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 4, 9]
+    note: ""
+  - zh: "测试集"
+    en: "test set"
+    vi: "tập kiểm tra"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 4, 9]
+    note: ""
+  - zh: "开发集"
+    en: "development set"
+    vi: "tập phát triển (dev set)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1]
+    note: ""
+  - zh: "训练"
+    en: "training / train"
+    vi: "huấn luyện"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 3, 4, 6, 8, 9, 10, 11]
+    note: ""
+  - zh: "部署"
+    en: "deployment / deploy"
+    vi: "triển khai"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 8, 9, 10, 11]
+    note: "本地部署 = local deployment ('triển khai cục bộ'); 私有化部署 = private on-premises deployment."
+  - zh: "参数"
+    en: "parameter"
+    vi: "tham số"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 3, 4, 6, 7, 8, 10, 11]
+    note: "参数规模 = parameter count ('số tham số'); 激活参数 = activated parameters (MoE)."
+  - zh: "超参数"
+    en: "hyperparameter"
+    vi: "siêu tham số"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 3]
+    note: ""
+  - zh: "权重"
+    en: "weights"
+    vi: "trọng số"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 8, 9]
+    note: "模型权重 = model weights."
+  - zh: "显存"
+    en: "GPU memory"
+    vi: "bộ nhớ GPU (VRAM)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 4]
+    note: "40GB显存 = 40 GB of GPU memory."
+  - zh: "算力"
+    en: "compute"
+    vi: "năng lực tính toán"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 10]
+    note: "大算力 = large-scale compute."
+  - zh: "语料"
+    en: "corpus"
+    vi: "kho ngữ liệu"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 3, 4, 6]
+    note: ""
+  - zh: "上下文"
+    en: "context"
+    vi: "ngữ cảnh"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 6, 7, 8, 10]
+    note: "上下文长度 = context length (keep 'context length' in vi tables if space is short); 上文 (ch7, ch11) = preceding context."
+  - zh: "损失函数"
+    en: "loss function"
+    vi: "hàm mất mát"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1]
+    note: ""
+  - zh: "采样"
+    en: "sampling"
+    vi: "lấy mẫu"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 4, 11]
+    note: "多次采样 = sample multiple times."
+  - zh: "向量"
+    en: "vector"
+    vi: "vector"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 8, 11]
+    note: ""
+  - zh: "表征"
+    en: "representation"
+    vi: "biểu diễn"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [8]
+    note: ""
+  - zh: "准确率"
+    en: "accuracy"
+    vi: "độ chính xác"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 3, 4]
+    note: "正确率 is the same word in ch3/ch4."
+  - zh: "指标"
+    en: "metric"
+    vi: "chỉ số"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 3, 4]
+    note: "评价指标 = evaluation metric ('chỉ số đánh giá')."
+  - zh: "优化"
+    en: "optimization / optimize"
+    vi: "tối ưu hóa"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 4, 6, 9, 10, 11]
+    note: "In ch11, 'Optimization' given by the source as a PPO step name stays English as the step label."
+  - zh: "梯度"
+    en: "gradient"
+    vi: "gradient"
+    vi_gloss: "hướng thay đổi tham số làm hàm mất mát giảm nhanh nhất"
+    keep_english_in_vi: true
+    chapters: [1, 2, 6, 10, 11]
+    note: "梯度更新 = gradient update ('cập nhật gradient')."
+  - zh: "强化学习"
+    en: "reinforcement learning (RL)"
+    vi: "học tăng cường (RL)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 4, 6, 9, 11]
+    note: "Settled Vietnamese term; RLHF stays English (separate entry)."
+  - zh: "监督学习"
+    en: "supervised learning"
+    vi: "học có giám sát"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 6, 9]
+    note: "有监督/监督 as modifier = 'supervised'. SFT stays English (see 有监督微调)."
+  - zh: "自监督"
+    en: "self-supervised"
+    vi: "tự giám sát"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1]
+    note: ""
+  - zh: "无监督"
+    en: "unsupervised"
+    vi: "không giám sát"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [6]
+    note: ""
+  - zh: "人工智能"
+    en: "artificial intelligence (AI)"
+    vi: "trí tuệ nhân tạo (AI)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 6, 7, 9, 10, 11]
+    note: ""
+  - zh: "生成式人工智能"
+    en: "generative AI"
+    vi: "AI tạo sinh"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 6, 7, 9, 10]
+    note: "生成式大模型 = generative large model ('mô hình lớn tạo sinh')."
+  - zh: "判别式"
+    en: "discriminative"
+    vi: "phân biệt"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2]
+    note: "判别式任务/模型 = discriminative task/model."
+  - zh: "自然语言处理"
+    en: "natural language processing (NLP)"
+    vi: "xử lý ngôn ngữ tự nhiên (NLP)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1]
+    note: ""
+  - zh: "文本分类"
+    en: "text classification"
+    vi: "phân loại văn bản"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2]
+    note: ""
+  - zh: "情感分析"
+    en: "sentiment analysis"
+    vi: "phân tích cảm xúc"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 6, 11]
+    note: "情感分类 = sentiment classification; 情感分类器 = sentiment classifier."
+  - zh: "命名实体识别"
+    en: "named entity recognition (NER)"
+    vi: "nhận dạng thực thể có tên (NER)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1]
+    note: "实体识别 in the ch10 slide = entity recognition."
+  - zh: "问答"
+    en: "question answering"
+    vi: "hỏi đáp"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 9]
+    note: ""
+  - zh: "摘要"
+    en: "summarization / summary"
+    vi: "tóm tắt"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 6, 10]
+    note: ""
+  - zh: "机器翻译"
+    en: "machine translation"
+    vi: "dịch máy"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 10]
+    note: ""
+  - zh: "文本生成"
+    en: "text generation"
+    vi: "sinh văn bản"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 7]
+    note: ""
+  - zh: "工具调用"
+    en: "tool calling"
+    vi: "gọi công cụ (tool calling)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 9, 10]
+    note: "Function call (Latin in ch9) stays 'function call'."
+  - zh: "人机交互"
+    en: "human-computer interaction"
+    vi: "tương tác người–máy"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [9, 10]
+    note: "自适应人机交互 (ch9) = adaptive human-agent interaction; 人类介入 = human intervention ('con người can thiệp')."
+  - zh: "开源"
+    en: "open-source"
+    vi: "mã nguồn mở"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 4, 9, 10]
+    note: "闭源 = closed-source ('mã nguồn đóng')."
+  - zh: "仓库"
+    en: "repository"
+    vi: "kho mã (repository)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [5, 8]
+    note: "代码库/代码仓库 = code repository."
+  - zh: "工具包"
+    en: "toolkit"
+    vi: "bộ công cụ"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 3, 6]
+    note: ""
+  - zh: "课件"
+    en: "slides"
+    vi: "slide bài giảng"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0]
+    note: "Top README table column header = 'Slides'."
+  - zh: "教程"
+    en: "tutorial"
+    vi: "bài hướng dẫn"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 3, 5, 6, 8, 9, 10, 11]
+    note: "Top README table column header = 'Tutorial'. 系列教程 = tutorial series."
+  - zh: "实验手册"
+    en: "lab manual"
+    vi: "sổ tay thực hành"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 11]
+    note: "实践手册 (ch1 slide) is the same."
+  - zh: "公益"
+    en: "free, non-profit"
+    vi: "miễn phí, phi lợi nhuận"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0]
+    note: "公益教程 = free non-profit course."
+  - zh: "免责声明"
+    en: "disclaimer"
+    vi: "tuyên bố miễn trừ trách nhiệm"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0]
+    note: ""
+  - zh: "徽章"
+    en: "badge"
+    vi: "huy hiệu (badge)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0]
+    note: "Top README disclaimer: shields.io badges, not watermarks."
+  - zh: "镜像"
+    en: "mirror"
+    vi: "mirror"
+    vi_gloss: "máy chủ sao chép để tải nhanh hơn trong Trung Quốc"
+    keep_english_in_vi: true
+    chapters: [1, 4, 7]
+    note: "hf-mirror.com; conda/PyPI mirrors (国内源)."
+  - zh: "延伸阅读"
+    en: "further reading"
+    vi: "đọc thêm"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 10]
+    note: ""
+  - zh: "进阶练习"
+    en: "further exercises"
+    vi: "bài tập nâng cao"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 5]
+    note: ""
+  - zh: "彩蛋"
+    en: "Easter egg (bonus tip)"
+    vi: "mẹo bonus"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1]
+    note: ""
+  - zh: "福利"
+    en: "bonus resources"
+    vi: "tài nguyên bonus"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2]
+    note: ""
+  - zh: "截图"
+    en: "screenshot"
+    vi: "ảnh chụp màn hình"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [9]
+    note: ""
+  - zh: "轨迹"
+    en: "trajectory"
+    vi: "trajectory"
+    vi_gloss: "chuỗi trạng thái và hành động agent đã đi qua"
+    keep_english_in_vi: true
+    chapters: [2, 9]
+    note: "专家轨迹 = expert trajectories."
+  - zh: "状态"
+    en: "state"
+    vi: "trạng thái"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [3, 6, 10, 11]
+    note: ""
+  - zh: "动作"
+    en: "action"
+    vi: "hành động"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 9, 10, 11]
+    note: "In ch11 RL, the source's own '(Action)' stays in parentheses; the ch9/ch10 'action' already in Latin stays 'action'."
+  - zh: "奖励"
+    en: "reward"
+    vi: "reward"
+    vi_gloss: "điểm thưởng môi trường hoặc reward model trả về cho một hành động/câu trả lời"
+    keep_english_in_vi: true
+    chapters: [1, 4, 6, 9, 11]
+    note: "RL/RLHF context (ch11, ch4, ch9): 奖励信号 = reward signal, 奖励均值 = mean reward. The ch6 jailbreak role-play 赏金 ('bounty') is not this term."
+  - zh: "参考模型"
+    en: "reference model"
+    vi: "mô hình tham chiếu"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [11]
+    note: ""
+  - zh: "标量值"
+    en: "scalar value"
+    vi: "giá trị vô hướng"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [11]
+    note: ""
+  - zh: "生成"
+    en: "generation / generate"
+    vi: "sinh / tạo"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11]
+    note: "Text generation 'sinh văn bản'; 生成式 = generative (see 生成式人工智能)."
+  - zh: "垂域大模型"
+    en: "domain-specific large model"
+    vi: "mô hình lớn chuyên ngành"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1]
+    note: "Also written 垂直大模型 (vertical large model)."
+  - zh: "隐私"
+    en: "privacy"
+    vi: "quyền riêng tư"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 6, 10]
+    note: "隐私泄露 = privacy leakage ('rò rỉ quyền riêng tư'); 隐私窃取 = privacy theft."
+  - zh: "风险"
+    en: "risk"
+    vi: "rủi ro"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [0, 2, 6, 9, 10]
+    note: "风险描述 = risk description; 风险识别 = risk identification; 风险类型 = risk type."
+  - zh: "内容安全"
+    en: "content safety"
+    vi: "an toàn nội dung"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [6, 7, 10]
+    note: ""
+  - zh: "安全标签"
+    en: "safety label"
+    vi: "nhãn an toàn"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 10]
+    note: "Values 'safe' / 'unsafe' stay in English (they are model outputs)."
+  - zh: "安全判断"
+    en: "safety judgment"
+    vi: "phán đoán an toàn"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [10, 11]
+    note: ""
+  - zh: "密码学"
+    en: "cryptography"
+    vi: "mật mã học"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [7, 10]
+    note: "密码 = cipher/cryptography in ch7 and ch10 '密码专家' = cipher expert ('chuyên gia mật mã')."
+  - zh: "载体"
+    en: "cover (carrier)"
+    vi: "vật mang tin"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [6, 7]
+    note: "Steganography: the innocent-looking file that carries the hidden message."
+  - zh: "秘密信息"
+    en: "secret message"
+    vi: "thông điệp bí mật"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [7]
+    note: ""
+  - zh: "意图"
+    en: "intent / intention"
+    vi: "ý định"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 6, 9, 10, 11]
+    note: ""
+  - zh: "过度执行"
+    en: "over-execution"
+    vi: "thực thi quá mức"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [9, 10]
+    note: "ch9/ch10: the agent keeps acting when it should stop or ask."
+  - zh: "过度拒绝"
+    en: "over-refusal"
+    vi: "từ chối quá mức"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [10]
+    note: ""
+  - zh: "调度系统"
+    en: "scheduling system"
+    vi: "hệ thống điều phối"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [9]
+    note: "任务调度 = task scheduling."
+  - zh: "能力边界"
+    en: "capability boundary"
+    vi: "giới hạn năng lực"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 9]
+    note: ""
+  - zh: "可解释性"
+    en: "interpretability"
+    vi: "khả năng diễn giải"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [2, 6]
+    note: ""
+  - zh: "泛化"
+    en: "generalization"
+    vi: "khả năng tổng quát hóa"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 4, 6]
+    note: "泛化性 / 泛化能力."
+  - zh: "三阶段式训练"
+    en: "three-stage training"
+    vi: "huấn luyện ba giai đoạn"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [8]
+    note: ""
+  - zh: "冻结参数"
+    en: "frozen parameters"
+    vi: "tham số đóng băng"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [8]
+    note: "冻结 = freeze. 可调参数 = trainable parameters ('tham số huấn luyện được')."
+  - zh: "情感"
+    en: "sentiment"
+    vi: "cảm xúc"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [1, 2, 6, 11]
+    note: "In ch11, 积极/消极 = positive/negative ('tích cực/tiêu cực'); 正面类/负面类 = positive/negative class."
+  - zh: "分类器"
+    en: "classifier"
+    vi: "bộ phân loại"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [6, 11]
+    note: ""
+  - zh: "规则匹配"
+    en: "rule-based matching"
+    vi: "so khớp theo quy tắc"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [4]
+    note: "规则评估 = rule-based evaluation; 规则奖励 = rule-based reward."
+  - zh: "正则表达式"
+    en: "regular expression"
+    vi: "biểu thức chính quy (regex)"
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [4]
+    note: ""
+  - zh: "鲁棒性"
+    en: "robustness"
+    vi: "robustness"
+    vi_gloss: "khả năng giữ hiệu quả khi bị nhiễu hoặc bị tấn công"
+    keep_english_in_vi: true
+    chapters: [2, 5, 6, 7, 9]
+    note: ""
+  - zh: "预训练"
+    en: "pre-training"
+    vi: "pre-training"
+    vi_gloss: "huấn luyện ban đầu trên kho dữ liệu rất lớn, chưa gắn với nhiệm vụ cụ thể"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 4, 6, 8, 9, 10, 11]
+    note: "预训练模型 = pre-trained model ('mô hình pre-trained')."
+  - zh: "预训练模型"
+    en: "pre-trained model"
+    vi: "mô hình pre-trained"
+    vi_gloss: "mô hình đã qua pre-training"
+    keep_english_in_vi: true
+    chapters: [0, 1, 8]
+    note: ""
+  - zh: "后训练"
+    en: "post-training"
+    vi: "post-training"
+    vi_gloss: "các bước huấn luyện sau pre-training (SFT, RL, alignment)"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "Latin 'Post-training' also appears (ch1 slide)."
+  - zh: "微调"
+    en: "fine-tuning"
+    vi: "fine-tuning"
+    vi_gloss: "tinh chỉnh một mô hình đã huấn luyện trên dữ liệu của một nhiệm vụ cụ thể"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 4, 6, 8, 9, 10, 11]
+    note: "Verb: 'fine-tune'; vi 'fine-tune mô hình'. 调优 (top README 迁移调优) = 'tuning' ('migration and tuning'), not fine-tuning."
+  - zh: "有监督微调"
+    en: "supervised fine-tuning (SFT)"
+    vi: "supervised fine-tuning (SFT)"
+    vi_gloss: "fine-tuning trên cặp đầu vào–đáp án mẫu do người hoặc mô hình mạnh hơn viết"
+    keep_english_in_vi: true
+    chapters: [1, 4, 6, 9]
+    note: "监督微调 is the same; SFT in Latin stays SFT."
+  - zh: "指令微调"
+    en: "instruction tuning"
+    vi: "instruction tuning"
+    vi_gloss: "fine-tuning trên dữ liệu dạng (instruction, câu trả lời) để mô hình biết làm theo yêu cầu"
+    keep_english_in_vi: true
+    chapters: [1, 4, 8, 9, 10]
+    note: "指令调整 (ch8 step 3) is the same term."
+  - zh: "指令遵循"
+    en: "instruction following"
+    vi: "instruction following"
+    vi_gloss: "khả năng làm đúng theo instruction"
+    keep_english_in_vi: true
+    chapters: [1, 2, 4, 6, 8, 10]
+    note: "指令跟随 is the same."
+  - zh: "轻量化微调"
+    en: "parameter-efficient fine-tuning (lightweight fine-tuning)"
+    vi: "parameter-efficient fine-tuning (lightweight fine-tuning)"
+    vi_gloss: "fine-tuning chỉ cập nhật một phần nhỏ tham số, ví dụ LoRA"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "Source says 轻量化 ('lightweight'); the linked method is LoRA/PEFT."
+  - zh: "提示学习"
+    en: "prompting (prompt learning)"
+    vi: "prompting (prompt learning)"
+    vi_gloss: "điều khiển mô hình bằng cách thiết kế prompt thay vì huấn luyện lại"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 10]
+    note: "ch2 gives '提示学习（Prompting）': title of ch2 = 'Prompting and Chain-of-Thought'. 连续提示学习 = continuous prompt learning (soft prompts)."
+  - zh: "提示工程"
+    en: "prompt engineering"
+    vi: "prompt engineering"
+    vi_gloss: "kỹ thuật thiết kế và tối ưu prompt"
+    keep_english_in_vi: true
+    chapters: [1, 2]
+    note: ""
+  - zh: "零样本"
+    en: "zero-shot"
+    vi: "zero-shot"
+    vi_gloss: "không đưa ví dụ mẫu nào trong prompt"
+    keep_english_in_vi: true
+    chapters: [1, 2]
+    note: "零样本提示 = zero-shot prompting."
+  - zh: "少样本"
+    en: "few-shot"
+    vi: "few-shot"
+    vi_gloss: "đưa vài ví dụ mẫu trong prompt"
+    keep_english_in_vi: true
+    chapters: [1, 2, 10]
+    note: "少样本提示 = few-shot prompting; 少样本学习 = few-shot learning."
+  - zh: "单样本"
+    en: "one-shot"
+    vi: "one-shot"
+    vi_gloss: "đưa đúng một ví dụ mẫu trong prompt"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "上下文学习"
+    en: "in-context learning (ICL)"
+    vi: "in-context learning (ICL)"
+    vi_gloss: "mô hình học nhiệm vụ từ ví dụ trong prompt, không cập nhật tham số"
+    keep_english_in_vi: true
+    chapters: [1, 2, 6]
+    note: ""
+  - zh: "思维链"
+    en: "chain-of-thought (CoT)"
+    vi: "chain-of-thought (CoT)"
+    vi_gloss: "để mô hình viết ra từng bước suy luận trước khi trả lời"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 4, 6, 9]
+    note: "思维链提示 = chain-of-thought prompting; 链式推理提示 (ch2 slide) is the same."
+  - zh: "自然语言思维链"
+    en: "natural-language chain-of-thought (CoT)"
+    vi: "natural-language chain-of-thought (CoT)"
+    vi_gloss: "chuỗi suy luận viết bằng ngôn ngữ tự nhiên"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "程序思维链"
+    en: "Program of Thoughts (PoT)"
+    vi: "Program of Thoughts (PoT)"
+    vi_gloss: "chuỗi suy luận viết thành chương trình rồi chạy để ra đáp án"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "Paper title is 'Program of Thoughts'; ch2 slide writes 'Program of Thought'."
+  - zh: "自动思维链"
+    en: "Auto-CoT"
+    vi: "Auto-CoT"
+    vi_gloss: "tự động tạo ví dụ CoT bằng cách gom cụm câu hỏi"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "Method name: keep Auto-CoT verbatim."
+  - zh: "人工思维链"
+    en: "Manual-CoT"
+    vi: "Manual-CoT"
+    vi_gloss: "ví dụ CoT do người viết tay"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "检索思维链"
+    en: "Retrieve-CoT"
+    vi: "Retrieve-CoT"
+    vi_gloss: "lấy các ví dụ gần nhất làm mẫu CoT"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "自洽性"
+    en: "self-consistency"
+    vi: "self-consistency"
+    vi_gloss: "lấy mẫu nhiều chuỗi suy luận rồi bỏ phiếu chọn đáp án xuất hiện nhiều nhất"
+    keep_english_in_vi: true
+    chapters: [2, 4]
+    note: "自洽思维链 = self-consistency with CoT."
+  - zh: "思维树"
+    en: "Tree of Thoughts (ToT)"
+    vi: "Tree of Thoughts (ToT)"
+    vi_gloss: "tổ chức suy luận thành cây để thử nhiều nhánh và quay lui"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "思维图"
+    en: "Graph of Thoughts (GoT)"
+    vi: "Graph of Thoughts (GoT)"
+    vi_gloss: "tổ chức suy luận thành đồ thị các ý"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "摘要思维链"
+    en: "Sum-CoT"
+    vi: "Sum-CoT"
+    vi_gloss: "CoT dùng cho tóm tắt văn bản"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "Method name: keep Sum-CoT verbatim."
+  - zh: "检索增强式生成"
+    en: "retrieval-augmented generation (RAG)"
+    vi: "retrieval-augmented generation (RAG)"
+    vi_gloss: "truy xuất tài liệu liên quan rồi mới sinh câu trả lời"
+    keep_english_in_vi: true
+    chapters: [1, 2]
+    note: "检索增强 = retrieval augmentation."
+  - zh: "推理行动协同"
+    en: "ReAct"
+    vi: "ReAct"
+    vi_gloss: "xen kẽ bước suy luận và bước hành động trong môi trường"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "Method name: keep ReAct verbatim."
+  - zh: "涌现能力"
+    en: "emergent abilities"
+    vi: "emergent abilities"
+    vi_gloss: "năng lực chỉ xuất hiện khi mô hình đủ lớn"
+    keep_english_in_vi: true
+    chapters: [1, 2, 6, 9]
+    note: "新兴现象 (ch8) = emergent phenomena."
+  - zh: "扩展定律"
+    en: "scaling law"
+    vi: "scaling law"
+    vi_gloss: "quy luật hiệu năng tăng theo kích thước mô hình, dữ liệu và compute"
+    keep_english_in_vi: true
+    chapters: [1, 8]
+    note: "规模定律 (ch8) is the same."
+  - zh: "幻觉"
+    en: "hallucination"
+    vi: "hallucination"
+    vi_gloss: "mô hình sinh nội dung sai sự thật hoặc không bám nguồn"
+    keep_english_in_vi: true
+    chapters: [1, 10]
+    note: ""
+  - zh: "忠实性"
+    en: "faithfulness"
+    vi: "faithfulness"
+    vi_gloss: "mức bám sát nguồn/ý định người dùng"
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "ch1 Faithfulness (to source text) vs ch10 faithfulness (to the user's goal, not hijacked by the environment)."
+  - zh: "RLHF"
+    en: "RLHF (reinforcement learning from human feedback)"
+    vi: "RLHF (reinforcement learning from human feedback)"
+    vi_gloss: "học tăng cường từ phản hồi của con người"
+    keep_english_in_vi: true
+    chapters: [0, 1, 6, 11]
+    note: "基于人类偏好的强化学习 / 从人类反馈中学习 map here."
+  - zh: "奖励模型"
+    en: "reward model (RM)"
+    vi: "reward model (RM)"
+    vi_gloss: "mô hình chấm điểm câu trả lời, học từ đánh giá của con người"
+    keep_english_in_vi: true
+    chapters: [1, 4, 6, 11]
+    note: ""
+  - zh: "奖励函数"
+    en: "reward function"
+    vi: "reward function"
+    vi_gloss: "hàm tính reward cho mỗi bước"
+    keep_english_in_vi: true
+    chapters: [9, 11]
+    note: ""
+  - zh: "价值函数"
+    en: "value function"
+    vi: "value function"
+    vi_gloss: "hàm ước lượng tổng reward kỳ vọng từ một trạng thái"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: ""
+  - zh: "环境模型"
+    en: "environment model"
+    vi: "environment model"
+    vi_gloss: "mô hình mô phỏng cách môi trường phản ứng"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: ""
+  - zh: "值头"
+    en: "value head"
+    vi: "value head"
+    vi_gloss: "lớp đầu ra phụ ước lượng value, gắn trên mô hình ngôn ngữ"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: ""
+  - zh: "策略梯度"
+    en: "policy gradient (PG)"
+    vi: "policy gradient (PG)"
+    vi_gloss: "phương pháp cập nhật policy theo gradient của reward kỳ vọng"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "ch11 slide writes 策略梯度下降 ('policy gradient descent'); standard name is 'policy gradient'."
+  - zh: "近端策略优化"
+    en: "Proximal Policy Optimization (PPO)"
+    vi: "Proximal Policy Optimization (PPO)"
+    vi_gloss: "thuật toán RL giới hạn mỗi bước cập nhật policy để huấn luyện ổn định"
+    keep_english_in_vi: true
+    chapters: [1, 11]
+    note: ""
+  - zh: "KL散度"
+    en: "KL divergence"
+    vi: "KL divergence"
+    vi_gloss: "độ đo khác biệt giữa hai phân phối xác suất"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "Source writes 'KL 散度（KL-divergence）'."
+  - zh: "对数概率"
+    en: "log-probability"
+    vi: "log-probability"
+    vi_gloss: "logarit của xác suất mô hình gán cho token"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: ""
+  - zh: "重要性采样"
+    en: "importance sampling"
+    vi: "importance sampling"
+    vi_gloss: "ước lượng theo một phân phối bằng mẫu lấy từ phân phối khác"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: ""
+  - zh: "经验回放"
+    en: "experience replay"
+    vi: "experience replay"
+    vi_gloss: "lưu lại trải nghiệm cũ để huấn luyện lại nhiều lần"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "经验回放池 = replay buffer; 目标网络 = target network."
+  - zh: "核采样"
+    en: "nucleus sampling (top-p)"
+    vi: "nucleus sampling (top-p)"
+    vi_gloss: "chỉ lấy mẫu trong nhóm token có tổng xác suất đạt ngưỡng p"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: ""
+  - zh: "贪婪解码"
+    en: "greedy decoding"
+    vi: "greedy decoding"
+    vi_gloss: "luôn chọn token có xác suất cao nhất"
+    keep_english_in_vi: true
+    chapters: [4]
+    note: ""
+  - zh: "温度"
+    en: "temperature"
+    vi: "temperature"
+    vi_gloss: "tham số điều chỉnh độ ngẫu nhiên khi sinh"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "As a parameter name; ordinary 'room temperature' (室温超导 'room-temperature superconductor' in a ch1 slide example) is not this term."
+  - zh: "存在惩罚"
+    en: "presence penalty"
+    vi: "presence penalty"
+    vi_gloss: "phạt token đã xuất hiện để giảm lặp"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "频率惩罚"
+    en: "frequency penalty"
+    vi: "frequency penalty"
+    vi_gloss: "phạt token theo số lần đã xuất hiện"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "最大标记"
+    en: "max tokens"
+    vi: "max tokens"
+    vi_gloss: "giới hạn số token sinh ra"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "流式"
+    en: "streaming"
+    vi: "streaming"
+    vi_gloss: "nhận kết quả dần theo từng phần"
+    keep_english_in_vi: true
+    chapters: [2]
+    note: ""
+  - zh: "拒绝采样"
+    en: "rejection sampling"
+    vi: "rejection sampling"
+    vi_gloss: "sinh nhiều lời giải rồi loại bỏ lời giải sai"
+    keep_english_in_vi: true
+    chapters: [4]
+    note: ""
+  - zh: "蒸馏"
+    en: "distillation"
+    vi: "distillation"
+    vi_gloss: "dùng đầu ra của mô hình lớn (teacher) để huấn luyện mô hình nhỏ (student)"
+    keep_english_in_vi: true
+    chapters: [0, 4]
+    note: "知识蒸馏 = knowledge distillation; 数据蒸馏 (ch4) = data distillation; 教师模型/学生模型 = teacher/student model."
+  - zh: "过程奖励模型"
+    en: "process reward model (PRM)"
+    vi: "process reward model (PRM)"
+    vi_gloss: "reward model chấm từng bước suy luận, không chỉ đáp án cuối"
+    keep_english_in_vi: true
+    chapters: [4]
+    note: ""
+  - zh: "蒙特卡洛树搜索"
+    en: "Monte Carlo tree search (MCTS)"
+    vi: "Monte Carlo tree search (MCTS)"
+    vi_gloss: "tìm kiếm trên cây bằng mô phỏng ngẫu nhiên"
+    keep_english_in_vi: true
+    chapters: [4]
+    note: ""
+  - zh: "分组相对策略优化"
+    en: "Group Relative Policy Optimization (GRPO)"
+    vi: "Group Relative Policy Optimization (GRPO)"
+    vi_gloss: "biến thể PPO so sánh reward trong một nhóm câu trả lời, bỏ mô hình critic"
+    keep_english_in_vi: true
+    chapters: [4]
+    note: ""
+  - zh: "长推理模型"
+    en: "long-reasoning model"
+    vi: "long-reasoning model"
+    vi_gloss: "mô hình sinh chuỗi suy luận rất dài trước khi trả lời (như o1, R1)"
+    keep_english_in_vi: true
+    chapters: [4]
+    note: ""
+  - zh: "课程学习"
+    en: "curriculum learning"
+    vi: "curriculum learning"
+    vi_gloss: "huấn luyện từ ví dụ dễ đến khó"
+    keep_english_in_vi: true
+    chapters: [2, 9]
+    note: "课程逻辑学习 = Curriculum Logical Reasoning (named method)."
+  - zh: "分布外"
+    en: "out-of-distribution (OOD)"
+    vi: "out-of-distribution (OOD)"
+    vi_gloss: "dữ liệu khác xa phân phối lúc huấn luyện"
+    keep_english_in_vi: true
+    chapters: [6]
+    note: ""
+  - zh: "分词器"
+    en: "tokenizer"
+    vi: "tokenizer"
+    vi_gloss: "bộ chuyển văn bản thành chuỗi token id"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "Latin 'Tokenizer' also appears (ch4)."
+  - zh: "模态"
+    en: "modality"
+    vi: "modality"
+    vi_gloss: "loại dữ liệu: văn bản, ảnh, âm thanh, video"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 6, 8, 9, 10]
+    note: "任意模态到任意模态 / 任意到任意 = any-to-any."
+  - zh: "多模态"
+    en: "multimodal"
+    vi: "multimodal"
+    vi_gloss: "xử lý nhiều modality cùng lúc"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 6, 8, 9, 10]
+    note: "多模态大模型 = multimodal large model."
+  - zh: "多模态大语言模型"
+    en: "multimodal large language model (MLLM)"
+    vi: "multimodal large language model (MLLM)"
+    vi_gloss: "LLM được gắn thêm khả năng hiểu/sinh ảnh, âm thanh, video"
+    keep_english_in_vi: true
+    chapters: [0, 8]
+    note: ""
+  - zh: "编码器"
+    en: "encoder"
+    vi: "encoder"
+    vi_gloss: "khối biến đầu vào thành biểu diễn vector"
+    keep_english_in_vi: true
+    chapters: [1, 2, 8]
+    note: "编码器模型 = encoder-only model (ch1 gives 'Encoder-Only')."
+  - zh: "解码器"
+    en: "decoder"
+    vi: "decoder"
+    vi_gloss: "khối sinh đầu ra từ biểu diễn"
+    keep_english_in_vi: true
+    chapters: [1, 2, 8]
+    note: "解码器模型 = decoder-only model; 编解码模型 = encoder-decoder model."
+  - zh: "投影层"
+    en: "projection layer"
+    vi: "projection layer"
+    vi_gloss: "lớp biến đổi biểu diễn của modality sang không gian của LLM"
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "输入投影层 / 输出投影层 = input / output projection layer."
+  - zh: "扩散模型"
+    en: "diffusion model"
+    vi: "diffusion model"
+    vi_gloss: "mô hình sinh ảnh/âm thanh/video bằng cách khử nhiễu dần"
+    keep_english_in_vi: true
+    chapters: [8]
+    note: ""
+  - zh: "自注意力"
+    en: "self-attention"
+    vi: "self-attention"
+    vi_gloss: "cơ chế để mỗi token cân nhắc mọi token khác trong chuỗi"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "注意力机制 = attention mechanism; 多头注意力 = multi-head attention."
+  - zh: "前馈网络"
+    en: "feed-forward network"
+    vi: "feed-forward network"
+    vi_gloss: "lớp mạng truyền thẳng trong mỗi khối Transformer"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: ""
+  - zh: "位置编码"
+    en: "positional encoding"
+    vi: "positional encoding"
+    vi_gloss: "thông tin vị trí cộng vào biểu diễn token"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: ""
+  - zh: "掩码语言建模"
+    en: "masked language modeling (MLM)"
+    vi: "masked language modeling (MLM)"
+    vi_gloss: "che một số token rồi bắt mô hình đoán lại"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: ""
+  - zh: "自回归"
+    en: "autoregressive"
+    vi: "autoregressive"
+    vi_gloss: "sinh từng token dựa trên các token trước đó"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "自回归语言建模 = autoregressive language modeling."
+  - zh: "序列到序列"
+    en: "sequence-to-sequence (seq2seq)"
+    vi: "sequence-to-sequence (seq2seq)"
+    vi_gloss: "biến một chuỗi đầu vào thành một chuỗi đầu ra"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: ""
+  - zh: "混合专家"
+    en: "mixture of experts (MoE)"
+    vi: "mixture of experts (MoE)"
+    vi_gloss: "kiến trúc chỉ kích hoạt một số 'chuyên gia' con cho mỗi token"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: ""
+  - zh: "稠密"
+    en: "dense"
+    vi: "dense"
+    vi_gloss: "mọi tham số đều được dùng cho mỗi token (đối lập MoE)"
+    keep_english_in_vi: true
+    chapters: [1]
+    note: ""
+  - zh: "知识编辑"
+    en: "knowledge editing"
+    vi: "knowledge editing"
+    vi_gloss: "sửa một mẩu tri thức cụ thể trong mô hình mà không huấn luyện lại toàn bộ"
+    keep_english_in_vi: true
+    chapters: [0, 3, 10]
+    note: "编辑方法 = editing method ('phương pháp editing'); 批量编辑 / batch edit = batch editing."
+  - zh: "通用性"
+    en: "Generalization"
+    vi: "Generalization"
+    vi_gloss: "mức bản sửa áp dụng cho các câu hỏi diễn đạt khác"
+    keep_english_in_vi: true
+    chapters: [3, 9, 10]
+    note: "EasyEdit metric name (ch3). See 可靠性."
+  - zh: "局部性"
+    en: "Locality"
+    vi: "Locality"
+    vi_gloss: "mức bản sửa không làm hỏng các tri thức không liên quan"
+    keep_english_in_vi: true
+    chapters: [3]
+    note: "EasyEdit metric name (ch3)."
+  - zh: "可移植性"
+    en: "Portability"
+    vi: "Portability"
+    vi_gloss: "mức bản sửa lan sang các suy luận liên quan"
+    keep_english_in_vi: true
+    chapters: [3]
+    note: "EasyEdit metric name (ch3)."
+  - zh: "基准"
+    en: "benchmark"
+    vi: "benchmark"
+    vi_gloss: "bộ bài kiểm tra chuẩn để so sánh mô hình"
+    keep_english_in_vi: true
+    chapters: [1, 2, 4, 9]
+    note: "基准测试 / 测试基准 / Benchmark. 基准污染 = benchmark contamination."
+  - zh: "越狱"
+    en: "jailbreak"
+    vi: "jailbreak"
+    vi_gloss: "dùng prompt khéo léo để vượt qua cơ chế an toàn của mô hình"
+    keep_english_in_vi: true
+    chapters: [0, 2, 6, 10]
+    note: "越狱攻击 = jailbreak attack; 越狱提示 = jailbreak prompt."
+  - zh: "突变"
+    en: "mutation"
+    vi: "mutation"
+    vi_gloss: "biến đổi prompt để tạo biến thể mới"
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "EasyJailbreak: Mutation（突变）/ Mutator（突变模块, 突变器）. Module names Selector, Mutator, Constraint, Evaluator stay verbatim."
+  - zh: "随机种子"
+    en: "seed"
+    vi: "seed"
+    vi_gloss: "tập prompt khởi đầu của vòng tấn công"
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "In EasyJailbreak 初始化随机种子 = 'initialize the seeds' (seed jailbreak prompts), not an RNG seed."
+  - zh: "红队"
+    en: "red teaming"
+    vi: "red teaming"
+    vi_gloss: "chủ động tấn công thử để tìm lỗ hổng an toàn"
+    keep_english_in_vi: true
+    chapters: [6, 10]
+    note: "红蓝对抗 (ch10) = red-team/blue-team exercise."
+  - zh: "对抗"
+    en: "adversarial"
+    vi: "adversarial"
+    vi_gloss: "đầu vào bị biến đổi có chủ đích để đánh lừa mô hình"
+    keep_english_in_vi: true
+    chapters: [6, 10]
+    note: "对抗攻击 = adversarial attack; 对抗扰动 = adversarial perturbation; 对抗训练 = adversarial training; 对抗性后缀 = adversarial suffix."
+  - zh: "侧信道"
+    en: "side channel"
+    vi: "side channel"
+    vi_gloss: "đường vòng gián tiếp: mật mã, ngôn ngữ ít tài nguyên, định dạng code"
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "'侧'信道越狱 = 'side-channel' jailbreak."
+  - zh: "后门"
+    en: "backdoor"
+    vi: "backdoor"
+    vi_gloss: "hành vi ẩn bị cài vào mô hình, chỉ kích hoạt khi gặp trigger"
+    keep_english_in_vi: true
+    chapters: [10]
+    note: ""
+  - zh: "投毒"
+    en: "poisoning"
+    vi: "poisoning"
+    vi_gloss: "chèn dữ liệu độc hại vào dữ liệu huấn luyện hoặc kho tri thức"
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "数据投毒 = data poisoning; 中毒知识库 = poisoned knowledge base."
+  - zh: "触发器"
+    en: "trigger"
+    vi: "trigger"
+    vi_gloss: "mẫu đầu vào đặc biệt kích hoạt backdoor"
+    keep_english_in_vi: true
+    chapters: [10]
+    note: ""
+  - zh: "注入攻击"
+    en: "injection attack"
+    vi: "injection attack"
+    vi_gloss: "chèn chỉ dẫn độc hại vào đầu vào hoặc môi trường của agent"
+    keep_english_in_vi: true
+    chapters: [9, 10]
+    note: "环境注入攻击 = environment injection attack."
+  - zh: "系统提示"
+    en: "system prompt"
+    vi: "system prompt"
+    vi_gloss: "prompt cấu hình hành vi của mô hình, đặt trước hội thoại"
+    keep_english_in_vi: true
+    chapters: [6, 10]
+    note: ""
+  - zh: "困惑度"
+    en: "perplexity"
+    vi: "perplexity"
+    vi_gloss: "độ 'bất ngờ' của mô hình với một đoạn văn; thấp nghĩa là trôi chảy"
+    keep_english_in_vi: true
+    chapters: [6]
+    note: ""
+  - zh: "水印检测"
+    en: "watermark detection"
+    vi: "watermark detection"
+    vi_gloss: "kiểm tra một đoạn văn có mang watermark hay không"
+    keep_english_in_vi: true
+    chapters: [5]
+    note: ""
+  - zh: "改写"
+    en: "paraphrase"
+    vi: "paraphrase"
+    vi_gloss: "viết lại cùng ý bằng câu chữ khác"
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "ch5 uses the Latin 'paraphrase'; 改写 in ch6 = rewrite (越狱风格迁移 rewrites prompts)."
+  - zh: "z-score"
+    en: "z-score"
+    vi: "z-score"
+    vi_gloss: "điểm chuẩn hóa đo độ mạnh của watermark"
+    keep_english_in_vi: true
+    chapters: [5]
+    note: "ch5: 水印强度（z-score）."
+  - zh: "ROC曲线"
+    en: "ROC curve"
+    vi: "ROC curve"
+    vi_gloss: "đường cong đánh đổi giữa tỉ lệ phát hiện đúng và báo nhầm"
+    keep_english_in_vi: true
+    chapters: [5]
+    note: "AUC = area under the ROC curve."
+  - zh: "隐写分析"
+    en: "steganalysis"
+    vi: "steganalysis"
+    vi_gloss: "kỹ thuật phát hiện tin giấu"
+    keep_english_in_vi: true
+    chapters: [7]
+    note: ""
+  - zh: "最低有效位"
+    en: "least significant bit (LSB)"
+    vi: "least significant bit (LSB)"
+    vi_gloss: "bit cuối của mỗi điểm ảnh, thay đổi mà mắt không thấy"
+    keep_english_in_vi: true
+    chapters: [7]
+    note: ""
+  - zh: "嵌入率"
+    en: "embedding rate"
+    vi: "embedding rate"
+    vi_gloss: "số bit tin giấu được trên mỗi token"
+    keep_english_in_vi: true
+    chapters: [7]
+    note: ""
+  - zh: "GUI智能体"
+    en: "GUI agent"
+    vi: "GUI agent"
+    vi_gloss: "agent thao tác giao diện đồ họa như người dùng: chạm, gõ, vuốt"
+    keep_english_in_vi: true
+    chapters: [0, 9, 10]
+    note: "图形用户界面 = graphical user interface (GUI)."
+  - zh: "多智能体"
+    en: "multi-agent"
+    vi: "multi-agent"
+    vi_gloss: "nhiều agent tương tác với nhau"
+    keep_english_in_vi: true
+    chapters: [9, 10]
+    note: ""
+  - zh: "通用人工智能"
+    en: "artificial general intelligence (AGI)"
+    vi: "artificial general intelligence (AGI)"
+    vi_gloss: "AI có năng lực tổng quát ngang con người"
+    keep_english_in_vi: true
+    chapters: [1, 9, 10, 11]
+    note: ""
+  - zh: "显式安全信号"
+    en: "explicit safety signal"
+    vi: "explicit safety signal"
+    vi_gloss: "tín hiệu phân loại an toàn được huấn luyện tường minh trong mô hình"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: ""
+  - zh: "安全层"
+    en: "safety layers"
+    vi: "safety layers"
+    vi_gloss: "các lớp trong mô hình nơi diễn ra 'phán đoán an toàn'"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: ""
+  - zh: "内生安全"
+    en: "intrinsic safety"
+    vi: "intrinsic safety"
+    vi_gloss: "an toàn có được từ chính mô hình, không nhờ bộ lọc bên ngoài"
+    keep_english_in_vi: true
+    chapters: [6, 10]
+    note: "内生对齐 = intrinsic alignment."
+  - zh: "API"
+    en: "API"
+    vi: "API"
+    vi_gloss: "giao diện lập trình ứng dụng"
+    keep_english_in_vi: true
+    chapters: [0, 1, 2, 5, 9, 10]
+    note: "API调用 = API call; API-KEY / API Key verbatim."
+  - zh: "checkpoint"
+    en: "checkpoint"
+    vi: "checkpoint"
+    vi_gloss: "bản lưu trọng số mô hình"
+    keep_english_in_vi: true
+    chapters: [4, 8]
+    note: "See 断点 / 检查点."
+  - zh: "Demo"
+    en: "demo"
+    vi: "demo"
+    vi_gloss: "bản chạy thử minh họa"
+    keep_english_in_vi: true
+    chapters: [0, 1, 8]
+    note: "See 演示."
+  - zh: "epoch"
+    en: "epoch"
+    vi: "epoch"
+    vi_gloss: "một lượt duyệt hết tập huấn luyện"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: ""
+  - zh: "logits"
+    en: "logits"
+    vi: "logits"
+    vi_gloss: "điểm thô trước softmax cho mỗi lớp/token"
+    keep_english_in_vi: true
+    chapters: [5, 7, 11]
+    note: ""
+  - zh: "用户生成内容"
+    en: "user-generated content (UGC)"
+    vi: "user-generated content (UGC)"
+    vi_gloss: "nội dung do người dùng tạo"
+    keep_english_in_vi: true
+    chapters: [6]
+    note: ""
+  - zh: "大模型生成内容"
+    en: "AI-generated content (AIGC)"
+    vi: "AI-generated content (AIGC)"
+    vi_gloss: "nội dung do mô hình AI tạo"
+    keep_english_in_vi: true
+    chapters: [6]
+    note: ""
+  - zh: "信号token"
+    en: "Signal Token"
+    vi: "Signal Token"
+    vi_gloss: "token đặc biệt LLM sinh ra để kích hoạt bộ giải mã modality"
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "ch8 2.5.2 'Signal Token'."
+  - zh: "通义千问"
+    en: "Qwen (Tongyi Qianwen)"
+    vi: "Qwen (Tongyi Qianwen)"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2, 10]
+    note: "do not translate. Alibaba Cloud's model family; 千问 alone = Qwen. Write the Latin form; do not translate."
+  - zh: "智谱AI"
+    en: "Zhipu AI"
+    vi: "Zhipu AI"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2]
+    note: "do not translate"
+  - zh: "文心一言"
+    en: "ERNIE Bot (Wenxin Yiyan)"
+    vi: "ERNIE Bot (Wenxin Yiyan)"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2]
+    note: "do not translate"
+  - zh: "百川"
+    en: "Baichuan"
+    vi: "Baichuan"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2]
+    note: "do not translate. Model/company name; also Baichuan-7B in ch5."
+  - zh: "阿里云"
+    en: "Alibaba Cloud"
+    vi: "Alibaba Cloud"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "华为"
+    en: "Huawei"
+    vi: "Huawei"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [0]
+    note: "do not translate. Also in allowlist where Han is shown with the Latin form."
+  - zh: "网易云音乐"
+    en: "NetEase Cloud Music"
+    vi: "NetEase Cloud Music"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate. Inside the ch9 JSON example (protected literal): keep the Han in the code block, gloss below it."
+  - zh: "美团"
+    en: "Meituan"
+    vi: "Meituan"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6, 9]
+    note: "do not translate"
+  - zh: "饿了么"
+    en: "Ele.me"
+    vi: "Ele.me"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "肯德基"
+    en: "KFC"
+    vi: "KFC"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "淘宝"
+    en: "Taobao"
+    vi: "Taobao"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "好未来"
+    en: "TAL Education Group"
+    vi: "TAL Education Group"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "九章"
+    en: "Jiuzhang (TAL's math model, MathGPT)"
+    vi: "Jiuzhang (TAL's math model, MathGPT)"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "网易有道"
+    en: "NetEase Youdao"
+    vi: "NetEase Youdao"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "子曰"
+    en: "Ziyue (Youdao's model)"
+    vi: "Ziyue (Youdao's model)"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "科大讯飞"
+    en: "iFlytek"
+    vi: "iFlytek"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "随申码"
+    en: "Suishenma (Shanghai's government service app)"
+    vi: "Suishenma (Shanghai's government service app)"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "周杰伦"
+    en: "Jay Chou"
+    vi: "Jay Chou"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "七里香"
+    en: "Qi Li Xiang (Common Jasmine Orange, Jay Chou song)"
+    vi: "Qi Li Xiang (Common Jasmine Orange, Jay Chou song)"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "秦始皇"
+    en: "Qin Shi Huang"
+    vi: "Qin Shi Huang"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [2, 6, 10]
+    note: "do not translate. 始皇帝 in the ch2/ch6 role-play prompt is the same person."
+  - zh: "鲁迅"
+    en: "Lu Xun"
+    vi: "Lu Xun"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate. ch1 slide hallucination example: 鲁迅 and 周树人 are the same person (Zhou Shuren is Lu Xun's real name)."
+  - zh: "周树人"
+    en: "Zhou Shuren"
+    vi: "Zhou Shuren"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "苏格拉底"
+    en: "Socrates"
+    vi: "Socrates"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "罗伯特维纳"
+    en: "Norbert Wiener"
+    vi: "Norbert Wiener"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "do not translate. SOURCE ERROR: the ch11 slide writes 罗伯特 (Robert); the founder of cybernetics (控制论鼻祖) is Norbert Wiener. Write 'Norbert Wiener' and add a translator's note."
+  - zh: "饮水思源 爱国荣校"
+    en: "SJTU motto: \"When you drink water, remember its source; love the country and bring honour to the university\""
+    vi: "khẩu hiệu của SJTU: \"Uống nước nhớ nguồn; yêu nước, làm rạng danh trường\""
+    vi_gloss: ""
+    keep_english_in_vi: false
+    chapters: [4, 11]
+    note: "Slide footer decoration (ch4, ch11). Slide notes may omit it; if shown, use the meaning, never the Han."
+  - zh: "《互联网信息服务深度合成管理规定》"
+    en: "Provisions on the Administration of Deep Synthesis Internet Information Services"
+    vi: "Provisions on the Administration of Deep Synthesis Internet Information Services"
+    vi_gloss: "văn bản quản lý AI của Trung Quốc"
+    keep_english_in_vi: true
+    chapters: [1, 6]
+    note: "Translate the title with this English form (italic) in both en and vi. Chinese regulation (2022)."
+  - zh: "《生成式人工智能服务管理暂行办法》"
+    en: "Interim Measures for the Management of Generative Artificial Intelligence Services"
+    vi: "Interim Measures for the Management of Generative Artificial Intelligence Services"
+    vi_gloss: "văn bản quản lý AI của Trung Quốc"
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "Translate the title with this English form (italic) in both en and vi. Chinese regulation (2023). The ch1 slide drops 暂行 ('Interim'): use the full title."
+  - zh: "《生成式人工智能服务安全基本要求》"
+    en: "Basic Safety Requirements for Generative Artificial Intelligence Services"
+    vi: "Basic Safety Requirements for Generative Artificial Intelligence Services"
+    vi_gloss: "văn bản quản lý AI của Trung Quốc"
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "Translate the title with this English form (italic) in both en and vi. Chinese technical document TC260-003 (2024)."
+  - zh: "大语言模型理论与实践"
+    en: "Large Language Models: From Theory to Practice"
+    vi: "Large Language Models: From Theory to Practice"
+    vi_gloss: "sách tiếng Trung về LLM"
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "Book title in the ch11 slide reference [4] by Zhang Qi, Gui Tao, Zheng Rui, Huang Xuanjing. English title is a translation, not verified as an official English edition."
+  - zh: "EasyEdit"
+    en: "EasyEdit"
+    vi: "EasyEdit"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [3]
+    note: "do not translate"
+  - zh: "ROME"
+    en: "ROME"
+    vi: "ROME"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [3]
+    note: "do not translate"
+  - zh: "MEMIT"
+    en: "MEMIT"
+    vi: "MEMIT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [3]
+    note: "do not translate"
+  - zh: "MEND"
+    en: "MEND"
+    vi: "MEND"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [3]
+    note: "do not translate"
+  - zh: "KGW"
+    en: "KGW"
+    vi: "KGW"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [5, 7]
+    note: "do not translate"
+  - zh: "X-SIR"
+    en: "X-SIR"
+    vi: "X-SIR"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [5]
+    note: "do not translate"
+  - zh: "SIR"
+    en: "SIR"
+    vi: "SIR"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [5]
+    note: "do not translate"
+  - zh: "EasyJailbreak"
+    en: "EasyJailbreak"
+    vi: "EasyJailbreak"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "NExT-GPT"
+    en: "NExT-GPT"
+    vi: "NExT-GPT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "ImageBind"
+    en: "ImageBind"
+    vi: "ImageBind"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "Vicuna"
+    en: "Vicuna"
+    vi: "Vicuna"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "Qwen"
+    en: "Qwen"
+    vi: "Qwen"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 4, 8, 9, 10]
+    note: "do not translate"
+  - zh: "Baichuan"
+    en: "Baichuan"
+    vi: "Baichuan"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [5]
+    note: "do not translate"
+  - zh: "TRL"
+    en: "TRL"
+    vi: "TRL"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "do not translate"
+  - zh: "PPO"
+    en: "PPO"
+    vi: "PPO"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [0, 1, 11]
+    note: "do not translate"
+  - zh: "PPOTrainer"
+    en: "PPOTrainer"
+    vi: "PPOTrainer"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "do not translate"
+  - zh: "Transformers"
+    en: "Transformers"
+    vi: "Transformers"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 4, 7]
+    note: "do not translate"
+  - zh: "Gradio"
+    en: "Gradio"
+    vi: "Gradio"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 8]
+    note: "do not translate"
+  - zh: "BERT"
+    en: "BERT"
+    vi: "BERT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 8, 11]
+    note: "do not translate"
+  - zh: "RoBERTa"
+    en: "RoBERTa"
+    vi: "RoBERTa"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2]
+    note: "do not translate"
+  - zh: "ALBERT"
+    en: "ALBERT"
+    vi: "ALBERT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "ELECTRA"
+    en: "ELECTRA"
+    vi: "ELECTRA"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2]
+    note: "do not translate"
+  - zh: "T5"
+    en: "T5"
+    vi: "T5"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 3, 8, 9]
+    note: "do not translate"
+  - zh: "BART"
+    en: "BART"
+    vi: "BART"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "GPT-J"
+    en: "GPT-J"
+    vi: "GPT-J"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [3]
+    note: "do not translate. ch3 also lists GPT-NEO (official 'GPT-Neo'); keep the list as the source has it, it is a name list."
+  - zh: "LoRA"
+    en: "LoRA"
+    vi: "LoRA"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 8]
+    note: "do not translate"
+  - zh: "Llama"
+    en: "Llama"
+    vi: "Llama"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 3, 5, 6, 10]
+    note: "do not translate"
+  - zh: "LLaMA"
+    en: "LLaMA"
+    vi: "LLaMA"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 8, 9]
+    note: "do not translate"
+  - zh: "Llama2"
+    en: "Llama2"
+    vi: "Llama2"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "GPT-2"
+    en: "GPT-2"
+    vi: "GPT-2"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 3, 7, 11]
+    note: "do not translate"
+  - zh: "GPT-3"
+    en: "GPT-3"
+    vi: "GPT-3"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2]
+    note: "do not translate"
+  - zh: "GPT-4"
+    en: "GPT-4"
+    vi: "GPT-4"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2, 4, 9, 10]
+    note: "do not translate"
+  - zh: "GPT-4o"
+    en: "GPT-4o"
+    vi: "GPT-4o"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 9, 10]
+    note: "do not translate"
+  - zh: "ChatGPT"
+    en: "ChatGPT"
+    vi: "ChatGPT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2, 6, 8, 11]
+    note: "do not translate"
+  - zh: "InstructGPT"
+    en: "InstructGPT"
+    vi: "InstructGPT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "OpenAI"
+    en: "OpenAI"
+    vi: "OpenAI"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2, 4, 6, 9, 11]
+    note: "do not translate"
+  - zh: "DeepSeek"
+    en: "DeepSeek"
+    vi: "DeepSeek"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 4, 8, 9]
+    note: "do not translate"
+  - zh: "DeepSeek-R1"
+    en: "DeepSeek-R1"
+    vi: "DeepSeek-R1"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 4, 9]
+    note: "do not translate"
+  - zh: "DeepSeek-Math"
+    en: "DeepSeek-Math"
+    vi: "DeepSeek-Math"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4]
+    note: "do not translate"
+  - zh: "DeepMath-103K"
+    en: "DeepMath-103K"
+    vi: "DeepMath-103K"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4]
+    note: "do not translate"
+  - zh: "Qwen2.5-Math"
+    en: "Qwen2.5-Math"
+    vi: "Qwen2.5-Math"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4]
+    note: "do not translate"
+  - zh: "Qwen2-VL"
+    en: "Qwen2-VL"
+    vi: "Qwen2-VL"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "OS-Kairos"
+    en: "OS-Kairos"
+    vi: "OS-Kairos"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9, 10]
+    note: "do not translate. The ch9 source once writes 'OS-Karios' (typo); write OS-Kairos in prose."
+  - zh: "LLaMA-Factory"
+    en: "LLaMA-Factory"
+    vi: "LLaMA-Factory"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate. Official spelling 'LLaMA-Factory'; the source writes 'LLaMa-Factory' in prose (fix in prose, never in code/paths)."
+  - zh: "ShareGPT"
+    en: "ShareGPT"
+    vi: "ShareGPT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate. SOURCE ERROR: ch9 prose says 'sharpgpt格式'; the format is ShareGPT. Fix in prose; the file name get_sharpgpt.py is code and stays."
+  - zh: "GSM8K"
+    en: "GSM8K"
+    vi: "GSM8K"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [2, 4]
+    note: "do not translate"
+  - zh: "MATH"
+    en: "MATH"
+    vi: "MATH"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4]
+    note: "do not translate"
+  - zh: "math500"
+    en: "math500"
+    vi: "math500"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4]
+    note: "do not translate"
+  - zh: "AIME"
+    en: "AIME"
+    vi: "AIME"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4]
+    note: "do not translate"
+  - zh: "vLLM"
+    en: "vLLM"
+    vi: "vLLM"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4]
+    note: "do not translate"
+  - zh: "DPO"
+    en: "DPO"
+    vi: "DPO"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "MLA"
+    en: "MLA"
+    vi: "MLA"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "KV cache"
+    en: "KV cache"
+    vi: "KV cache"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "FLAN"
+    en: "FLAN"
+    vi: "FLAN"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "Auto-CoT"
+    en: "Auto-CoT"
+    vi: "Auto-CoT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "do not translate"
+  - zh: "Reflexion"
+    en: "Reflexion"
+    vi: "Reflexion"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "do not translate"
+  - zh: "CRITIC"
+    en: "CRITIC"
+    vi: "CRITIC"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "do not translate"
+  - zh: "R-Judge"
+    en: "R-Judge"
+    vi: "R-Judge"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "Auto-UI"
+    en: "Auto-UI"
+    vi: "Auto-UI"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "AIOS"
+    en: "AIOS"
+    vi: "AIOS"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "OS-Copilot"
+    en: "OS-Copilot"
+    vi: "OS-Copilot"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "PAIR"
+    en: "PAIR"
+    vi: "PAIR"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "DAN"
+    en: "DAN"
+    vi: "DAN"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate. 'Do Anything Now' jailbreak template; DUDE, STAN, Mongo Tom (ch6 slides) are also names: verbatim."
+  - zh: "Stable Diffusion"
+    en: "Stable Diffusion"
+    vi: "Stable Diffusion"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "AudioLDM"
+    en: "AudioLDM"
+    vi: "AudioLDM"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "ZeroScope"
+    en: "ZeroScope"
+    vi: "ZeroScope"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "CC3M"
+    en: "CC3M"
+    vi: "CC3M"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "WebVid"
+    en: "WebVid"
+    vi: "WebVid"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "AudioCap"
+    en: "AudioCap"
+    vi: "AudioCap"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "LLaVA"
+    en: "LLaVA"
+    vi: "LLaVA"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 8]
+    note: "do not translate"
+  - zh: "Alpaca"
+    en: "Alpaca"
+    vi: "Alpaca"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "VideoChat"
+    en: "VideoChat"
+    vi: "VideoChat"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "MosIT"
+    en: "MosIT"
+    vi: "MosIT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "DeepSpeed"
+    en: "DeepSpeed"
+    vi: "DeepSpeed"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8, 9]
+    note: "do not translate. SOURCE ERROR: ch8 '深度速度中的 GPT cuda 编号' is a word-by-word rendering of NExT-GPT's 'GPT cuda number 0 of deepspeed'; write 'CUDA device 0 used by DeepSpeed'."
+  - zh: "IMDB"
+    en: "IMDB"
+    vi: "IMDB"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "do not translate"
+  - zh: "Weights & Biases"
+    en: "Weights & Biases"
+    vi: "Weights & Biases"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "do not translate"
+  - zh: "wandb"
+    en: "wandb"
+    vi: "wandb"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [11]
+    note: "do not translate"
+  - zh: "Ollama"
+    en: "Ollama"
+    vi: "Ollama"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "LM Studio"
+    en: "LM Studio"
+    vi: "LM Studio"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "MindIE"
+    en: "MindIE"
+    vi: "MindIE"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "Mobile-Agent"
+    en: "Mobile-Agent"
+    vi: "Mobile-Agent"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "AppAgent"
+    en: "AppAgent"
+    vi: "AppAgent"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "DigiRL"
+    en: "DigiRL"
+    vi: "DigiRL"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "DistRL"
+    en: "DistRL"
+    vi: "DistRL"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "UI-NEXUS"
+    en: "UI-NEXUS"
+    vi: "UI-NEXUS"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9, 10]
+    note: "do not translate"
+  - zh: "TrojanRAG"
+    en: "TrojanRAG"
+    vi: "TrojanRAG"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "GuardAgent"
+    en: "GuardAgent"
+    vi: "GuardAgent"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "CogAgent"
+    en: "CogAgent"
+    vi: "CogAgent"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9, 10]
+    note: "do not translate"
+  - zh: "SeeClick"
+    en: "SeeClick"
+    vi: "SeeClick"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "MiniCPM"
+    en: "MiniCPM"
+    vi: "MiniCPM"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 8, 10]
+    note: "do not translate"
+  - zh: "MMLU"
+    en: "MMLU"
+    vi: "MMLU"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [10]
+    note: "do not translate"
+  - zh: "CLIP"
+    en: "CLIP"
+    vi: "CLIP"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [8]
+    note: "do not translate"
+  - zh: "Hugging Face"
+    en: "Hugging Face"
+    vi: "Hugging Face"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 4, 6, 8, 9, 11]
+    note: "do not translate. Source spellings huggingface / HuggingFace / Huggingface: write 'Hugging Face' in prose; keep identifiers (HuggingfaceModel, huggingface.co) verbatim."
+  - zh: "DashScope"
+    en: "DashScope"
+    vi: "DashScope"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 2, 10]
+    note: "do not translate"
+  - zh: "Jupyter"
+    en: "Jupyter"
+    vi: "Jupyter"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [3, 4, 7]
+    note: "do not translate. SOURCE ERROR: ch3 writes 'Jupiter Notebook'; write 'Jupyter Notebook' in prose."
+  - zh: "Colab"
+    en: "Colab"
+    vi: "Colab"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [3]
+    note: "do not translate"
+  - zh: "Kaggle"
+    en: "Kaggle"
+    vi: "Kaggle"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1]
+    note: "do not translate"
+  - zh: "conda"
+    en: "conda"
+    vi: "conda"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [1, 3, 5, 8]
+    note: "do not translate"
+  - zh: "PyTorch"
+    en: "PyTorch"
+    vi: "PyTorch"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4, 7]
+    note: "do not translate"
+  - zh: "SST-2"
+    en: "SST-2"
+    vi: "SST-2"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "do not translate"
+  - zh: "mC4"
+    en: "mC4"
+    vi: "mC4"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [5]
+    note: "do not translate"
+  - zh: "Math-Verify"
+    en: "Math-Verify"
+    vi: "Math-Verify"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4]
+    note: "do not translate"
+  - zh: "Omni-MATH"
+    en: "Omni-MATH"
+    vi: "Omni-MATH"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [4]
+    note: "do not translate. SOURCE ERROR: the ch4 slide writes 'Omini测试集'; the benchmark is Omni-MATH (Omni-Judge is its judge model)."
+  - zh: "Tab-CoT"
+    en: "Tab-CoT"
+    vi: "Tab-CoT"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "do not translate"
+  - zh: "FireAct"
+    en: "FireAct"
+    vi: "FireAct"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [2]
+    note: "do not translate"
+  - zh: "UI-TARS"
+    en: "UI-TARS"
+    vi: "UI-TARS"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "OS-Atlas"
+    en: "OS-Atlas"
+    vi: "OS-Atlas"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [9]
+    note: "do not translate"
+  - zh: "Many-Shot Jailbreak"
+    en: "Many-Shot Jailbreak"
+    vi: "Many-Shot Jailbreak"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "ICD"
+    en: "ICD"
+    vi: "ICD"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"
+  - zh: "CWD"
+    en: "CWD"
+    vi: "CWD"
+    vi_gloss: ""
+    keep_english_in_vi: true
+    chapters: [6]
+    note: "do not translate"

@@ -1,1 +1,9 @@
 .DS_Store
+
+# Translation tooling (fork only)
+.venv/
+site/
+i18n/.cache/
+.claude/
+__pycache__/
+docs/

@@ -1,0 +1,1 @@
+> **Ghi chú của người dịch — mục đích sử dụng:** Chương này là tài liệu giáo dục phục vụ nghiên cứu an toàn AI; không dùng nội dung của chương để tấn công hệ thống, mô hình hay dịch vụ thật, hoặc bất kỳ hệ thống nào bạn không được phép kiểm thử.

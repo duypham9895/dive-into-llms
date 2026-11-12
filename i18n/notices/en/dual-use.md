@@ -1,0 +1,1 @@
+> **Translator's note — intended use:** This chapter is educational material for AI-safety research; do not use it to attack real systems, models or services, or any system you are not authorised to test.

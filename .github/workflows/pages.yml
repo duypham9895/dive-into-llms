@@ -1,0 +1,66 @@
+# Build the vi/en translation site and deploy it to GitHub Pages.
+# Pages must be set to build_type=workflow before this runs on main (see PUBLISH.md).
+#
+# Not run here: scripts/i18n_slides_check.py and scripts/test_i18n_slides_check.py.
+# Both read the pdftotext cache in i18n/.cache/slides/, which is git-ignored and made
+# locally from the upstream PDF decks, so the slide notes are checked before pushing.
+#
+# Actions pinned to their current major versions, checked 2026-11-12 with
+# gh api repos/actions/<name>/releases/latest: checkout v7.0.1, setup-python v7.1.0,
+# upload-pages-artifact v5.0.0, deploy-pages v5.0.1.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-docs.txt
+      - name: Install the docs toolchain
+        run: pip install -r requirements-docs.txt -c requirements-docs.lock
+      - name: Test the normaliser, link map and validator
+        run: |
+          python scripts/test_i18n_normalize.py
+          python scripts/test_i18n_links.py
+          python scripts/test_i18n_check.py
+      - name: Validate every translation against its source
+        run: python scripts/i18n_check.py
+      - name: Assemble docs/ from the translations
+        run: python scripts/assemble_docs.py
+      - name: Build the site
+        run: mkdocs build --strict
+      - name: Check the built HTML against its Markdown
+        run: python scripts/i18n_render_check.py site docs
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    # Only the deploy job may write to Pages and mint an OIDC token.
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
