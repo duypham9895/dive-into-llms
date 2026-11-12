@@ -4,8 +4,10 @@
 // upstream deck with PDF.js, read from raw.githubusercontent.com at the pinned commit. No
 // copy of a deck is made: raw sends `access-control-allow-origin: *`, but answers a Range
 // request with 501, so ranges and streaming are off and the first view downloads the whole
-// deck; one document promise per deck is then reused. Tutorial pages: a card near the top
-// with the deck's page count and size, linking the slide notes and the original PDF.
+// deck; one document promise per deck is then reused. A slide hidden again gives back its
+// canvas memory and is re-rendered from that cached document when shown. Tutorial pages: a
+// card near the top with the deck's page count and size, linking the slide notes and the
+// original PDF.
 // PDF.js is vendored next to this file (assets/pdfjs, Apache-2.0) and loaded on first use.
 import { COMMIT, DECKS } from "./slide-decks.js";
 
@@ -44,8 +46,9 @@ const T = {
     original: "Original PDF",
   },
 }[LANG];
-// The chapter 5 deck is in English (its slide notes say so); every other deck is Chinese.
-const ENGLISH_DECKS = new Set(["chapter5/watermark.pdf"]);
+// The chapter 5 and chapter 8 decks are in English (their slide notes say so, and pdftotext
+// finds no Chinese in them); the card calls every other deck Chinese.
+const ENGLISH_DECKS = new Set(["chapter5/watermark.pdf", "chapter8/mllms.pdf"]);
 
 function mb(bytes) {
   return `${(bytes / 1e6).toLocaleString(LANG === "en" ? "en-US" : "vi-VN", {
@@ -99,9 +102,17 @@ function slideTitle(heading) {
 }
 
 async function renderSlide(item) {
-  const { view, key, k, title, status } = item;
-  const pdf = await loadDeck(key);
-  const page = await pdf.getPage(k);
+  const pdf = await loadDeck(item.key);
+  const page = await pdf.getPage(item.k);
+  try {
+    await drawSlide(item, page);
+  } finally {
+    page.cleanup(); // the page's operator list and images go; the document stays cached
+  }
+}
+
+async function drawSlide(item, page) {
+  const { view, k, title, status } = item;
   const base = page.getViewport({ scale: 1 });
   // The view may have been hidden again while loading; its parent keeps the column width.
   const scale = (view.clientWidth || view.parentElement.clientWidth || base.width) / base.width;
@@ -124,11 +135,14 @@ async function renderSlide(item) {
   frame.style.setProperty("--total-scale-factor", String(scale));
   frame.append(text);
   view.replaceChildren(frame);
+  item.canvas = canvas;
+  item.text = text;
   // Keep the text layer on the canvas when the column width changes after rendering.
   if ("ResizeObserver" in window) {
-    new ResizeObserver(() => {
+    item.observer = new ResizeObserver(() => {
       if (frame.clientWidth) frame.style.setProperty("--total-scale-factor", String(frame.clientWidth / base.width));
-    }).observe(frame);
+    });
+    item.observer.observe(frame);
   }
   try {
     const lib = await pdfjs; // already loaded by loadDeck
@@ -136,7 +150,18 @@ async function renderSlide(item) {
   } catch {
     text.remove(); // the picture and its label still stand without selectable text
   }
-  status.textContent = T.rendered(k);
+  // A view hidden while it rendered is released by the caller, and is not announced.
+  if (!view.hidden) status.textContent = T.rendered(k);
+}
+
+// A hidden slide gives back its pixels, text spans and observer. Its frame stays in place at
+// the slide's aspect ratio, so showing it again re-renders from the cached document.
+function release(item) {
+  item.observer?.disconnect();
+  item.observer = null;
+  item.canvas.width = item.canvas.height = 0;
+  item.text.replaceChildren();
+  item.state = "released";
 }
 
 function setUpSlideNotes(article) {
@@ -156,25 +181,31 @@ function setUpSlideNotes(article) {
     );
     const view = el("div", { id: viewId, class: "dill-slide__view", hidden: "" });
     const status = el("p", { class: "dill-slide__status", role: "status" });
+    // state: idle → loading → done; hiding a done slide makes it released, and showing a
+    // released slide loads it again; error retries on click. drawSlide adds canvas, text and
+    // observer to the item, and release() empties them.
     const item = { view, key, k, title: slideTitle(heading), status, state: "idle" };
     heading.after(el("div", { class: "dill-slide" }, button, status, view));
 
     button.addEventListener("click", async () => {
-      if (item.state === "loading" || item.state === "done") {
-        const open = button.getAttribute("aria-expanded") === "true";
-        button.setAttribute("aria-expanded", String(!open));
-        view.hidden = open;
+      if (button.getAttribute("aria-expanded") === "true" && item.state !== "error") {
+        button.setAttribute("aria-expanded", "false");
+        view.hidden = true;
+        if (item.state === "done") release(item); // a slide still loading is released when it finishes
         return;
       }
-      item.state = "loading";
       button.setAttribute("aria-expanded", "true");
       view.hidden = false;
+      if (item.state === "loading") return; // the render under way finishes into the shown view
+      // A released slide keeps its empty frame while it re-renders; the deck is already cached.
+      if (item.state !== "released") view.replaceChildren(el("p", { class: "dill-slide__loading" }, T.loading(size)));
+      item.state = "loading";
       view.setAttribute("aria-busy", "true");
-      view.replaceChildren(el("p", { class: "dill-slide__loading" }, T.loading(size)));
       status.textContent = "";
       try {
         await renderSlide(item);
         item.state = "done";
+        if (view.hidden) release(item); // hidden again while it rendered
       } catch (err) {
         item.state = "error";
         console.warn("slide viewer:", err);
