@@ -1,6 +1,6 @@
 # Fork notice
 
-This repository is a fork of **[Lordog/dive-into-llms](https://github.com/Lordog/dive-into-llms)**: 《动手学大模型》 Dive into LLMs, by 张倬胜, 袁童鑫 et al. (Shanghai Jiao Tong University, National University of Singapore, Huawei Ascend community).
+This repository is a fork of **[Lordog/dive-into-llms](https://github.com/Lordog/dive-into-llms)**: 《动手学大模型》 Dive into LLMs, by 张倬胜, 袁童鑫 et al. (Shanghai Jiao Tong University, National University of Singapore), with support from the Huawei Ascend community.
 
 - Forked at upstream commit `f84c04268794ef94f8949808bbc14ab8636763a0` (2025-10-10).
 - Branch `main` is identical to upstream `main` at that commit. The Vietnamese and English translation is developed on branch `content/i18n`.
