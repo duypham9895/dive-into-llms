@@ -2,7 +2,7 @@
 
 📖 Đọc bản dịch trên web: [https://duypham9895.github.io/dive-into-llms/](https://duypham9895.github.io/dive-into-llms/)
 
-Bản dịch tiếng Việt/tiếng Anh không chính thức của 《动手学大模型》 Dive into LLMs ([github.com/Lordog/dive-into-llms @ f84c042](https://github.com/Lordog/dive-into-llms/tree/f84c04268794ef94f8949808bbc14ab8636763a0)), của 张倬胜, 袁童鑫 và cộng sự (SJTU, NUS), với sự hỗ trợ của cộng đồng Huawei Ascend. Không liên kết và không được tác giả xác nhận. Bản quyền thuộc về các tác giả gốc. Yêu cầu gỡ bỏ: [https://github.com/duypham9895/dive-into-llms/issues](https://github.com/duypham9895/dive-into-llms/issues)
+Bản dịch tiếng Việt/tiếng Anh không chính thức của 《动手学大模型》 Dive into LLMs ([github.com/Lordog/dive-into-llms @ f84c042](https://github.com/Lordog/dive-into-llms/tree/f84c04268794ef94f8949808bbc14ab8636763a0)). Tác giả bản gốc: Zhang Zhuosheng (张倬胜), Yuan Tongxin (袁童鑫) và cộng sự (SJTU, NUS), với sự hỗ trợ của cộng đồng Huawei Ascend. Bản dịch do AI thực hiện, có kiểm tra tự động, chưa được người hiệu đính toàn bộ. Bản dịch không có quan hệ chính thức với nhóm tác giả và chưa được họ chấp thuận. Bản quyền thuộc về các tác giả gốc. Yêu cầu gỡ bỏ: [https://github.com/duypham9895/dive-into-llms/issues](https://github.com/duypham9895/dive-into-llms/issues)
 
 Huy hiệu sao/fork/issue và biểu đồ Star History bên dưới là của repo gốc (Lordog/dive-into-llms), không phải của bản fork này. Lỗi bản dịch: mở issue tại [https://github.com/duypham9895/dive-into-llms/issues](https://github.com/duypham9895/dive-into-llms/issues).
 
