@@ -3,6 +3,8 @@
 
 Pipeline per page: translated text -> link rewrite map (i18n_links) -> normalise
 (i18n_normalize) -> docs/<lang>/<page>. Notebooks go through build_notebooks first.
+Slide notes are only normalised, and may hold absolute http(s) links only.
+docs/vi and docs/en are cleared first, so nothing from an earlier run is built.
 
 Layout of translations (mirrors upstream paths):
   i18n/translated/<lang>/README.md
@@ -17,12 +19,13 @@ Usage:
 """
 from __future__ import annotations
 
+import shutil
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_notebooks import to_markdown  # noqa: E402
-from i18n_links import ROOT, UNIQUE_NOTEBOOKS, PageContext, rewrite, source_files  # noqa: E402
+from i18n_links import ROOT, UNIQUE_NOTEBOOKS, PageContext, check_external_only, rewrite, source_files  # noqa: E402
 from i18n_normalize import normalize  # noqa: E402
 
 LANGS = ("vi", "en")
@@ -38,9 +41,25 @@ def build_page(source_rel: str, page: str, lang: str, source_text: str, translat
     return normalize(rewritten)
 
 
+def _clear(docs: Path) -> None:
+    """Remove docs/vi and docs/en before writing, so a page left by an earlier run (or
+    any extra file) cannot be built and pass the render check. Only these two folders,
+    and only directly inside docs, are ever removed."""
+    base = docs.resolve()
+    for lang in LANGS:
+        folder = docs / lang
+        if folder.is_symlink():
+            raise ValueError(f"{folder} is a symlink; refusing to clear it")
+        if folder.resolve().parent != base:
+            raise ValueError(f"{folder} is not directly inside {base}")
+        if folder.exists():
+            shutil.rmtree(folder)
+
+
 def assemble(docs: Path, translation_root: Path | None) -> list[str]:
     """Write every page for both languages; return the written docs paths.
     translation_root None = spike: the upstream source stands in for the translation."""
+    _clear(docs)
     written: list[str] = []
     for lang in LANGS:
         for source_rel, page, source_text in source_files():
@@ -56,8 +75,11 @@ def assemble(docs: Path, translation_root: Path | None) -> list[str]:
             written.append(str(out))
         if translation_root is not None:
             for slides in sorted((translation_root / lang / "slides").glob("chapter*.md")):
+                # Slide notes have no link map: only absolute http(s) links may appear.
                 out = docs / lang / slides.stem / "slides.md"
-                _write(out, normalize(slides.read_text(encoding="utf-8")))
+                text = normalize(slides.read_text(encoding="utf-8"))
+                check_external_only(text, str(slides))
+                _write(out, text)
                 written.append(str(out))
     return written
 
