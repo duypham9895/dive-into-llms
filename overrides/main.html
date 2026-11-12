@@ -16,3 +16,16 @@
     Yêu cầu gỡ bỏ: <a href="https://github.com/duypham9895/dive-into-llms/issues">https://github.com/duypham9895/dive-into-llms/issues</a>
   {% endif %}
 {% endblock %}
+
+{#- Original-slide viewer and deck card (decision 2026-11-12, option B). Client-side only:
+    the static HTML of every page is unchanged, so the render check reads the same article. -#}
+{% block extrahead %}
+  {{ super() }}
+  <meta name="dill-page" content="{{ page.file.src_uri if page and page.file else '' }}">
+  <link rel="stylesheet" href="{{ 'assets/stylesheets/slide-viewer.css' | url }}">
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script type="module" src="{{ 'assets/javascripts/slide-viewer.js' | url }}"></script>
+{% endblock %}
