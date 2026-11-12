@@ -132,7 +132,7 @@ def main() -> int:
 
     # --- the attribution notice is read from overrides/main.html, not duplicated ----------
     html = (ROOT / "overrides" / "main.html").read_text(encoding="utf-8")
-    vi_sentence = re.search(r"Không liên kết.*?các tác giả gốc\.", html, re.S)
+    vi_sentence = re.search(r"Bản dịch không có quan hệ chính thức.*?các tác giả gốc\.", html, re.S)
     en_sentence = re.search(r"Not affiliated.*?original authors\.", html, re.S)
     check(
         "the vi notice's core sentence is read verbatim from overrides/main.html",
