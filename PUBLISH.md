@@ -51,7 +51,8 @@ SSH, because the gh token lacks the `workflow` scope and an HTTPS push of
 `.github/workflows/pages.yml` would be refused.
 
 ```sh
-git remote add origin git@github.com:duypham9895/dive-into-llms.git
+git remote get-url origin 2>/dev/null \
+  || git remote add origin git@github.com:duypham9895/dive-into-llms.git   # only if origin is missing
 git push origin content/i18n
 ```
 
