@@ -93,17 +93,20 @@ HEADER = {
         "lang_line": "**Tiếng Việt** · [English](README.en.md) · [中文 (bản gốc)](/README.md)",
         "site_line": "📖 Đọc bản dịch trên web: [{url}]({url})",
         "badge_note": (
-            "Huy hiệu sao/fork/issue và biểu đồ Star History bên dưới là của repo gốc "
-            "(Lordog/dive-into-llms), không phải của bản fork này. "
-            f"Lỗi bản dịch: mở issue tại [{ISSUES_URL}]({ISSUES_URL})."
+            "Huy hiệu sao/fork/issue, huy hiệu \"PRs Welcome\", biểu đồ Star History, và mục "
+            "\"Contributing\" bên dưới đều là của repo gốc (Lordog/dive-into-llms), không "
+            "phải của bản fork này -- chúng mời đóng góp vào dự án gốc, không phải vào bản "
+            f"dịch này. Lỗi bản dịch: mở issue tại [{ISSUES_URL}]({ISSUES_URL})."
         ),
     },
     "en": {
         "lang_line": "[Tiếng Việt](README.md) · **English** · [中文 (original)](/README.md)",
         "site_line": "📖 Read the translation on the web: [{url}]({url})",
         "badge_note": (
-            "The star/fork/issue badges and the Star History chart below belong to the "
-            "original repository (Lordog/dive-into-llms), not to this fork. "
+            "The star/fork/issue badges, the \"PRs Welcome\" badge, the Star History chart, "
+            "and the \"Contributing\" section below all belong to the original repository "
+            "(Lordog/dive-into-llms), not to this fork -- they invite contributions to the "
+            "original project, not to this translation. "
             f"Translation errors: open an issue at [{ISSUES_URL}]({ISSUES_URL})."
         ),
     },

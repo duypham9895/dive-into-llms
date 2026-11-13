@@ -563,7 +563,11 @@ function setUpSlideNotes(article) {
     }
   }
 
-  if (!items.length) return; // en ch5/ch8 stub pages: a deck link but no slide headings
+  // Defensive: a page with a deck link but no slide-k headings at all. En ch5/ch8 no longer
+  // hit this -- assemble_docs.py now appends one "## Slide k" heading per deck page to their
+  // stub notes (no notes text, so an empty body under each; see assemble_docs's
+  // append_stub_slides for why that is accepted) -- so every chapter's slides page has items.
+  if (!items.length) return;
 
   // The one page-level live region for a deck-wide failure (visually hidden, same technique as
   // the per-slide status above). Nothing on the page is visible for this beyond the per-slide

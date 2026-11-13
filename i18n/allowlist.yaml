@@ -1,5 +1,5 @@
 # Han strings allowed to remain on vi/en pages, always next to their Latin form.
-# Generated 2026-11-12 for Lordog/dive-into-llms @ f84c042. Review by Duy pending.
+# Generated 2026-11-12 for Lordog/dive-into-llms @ f84c042. Reviewed by Duy 2026-11-13 (all 42 entries approved).
 # Latin names are pinyin, family name first; the authors' own English usage is given-name first (e.g. 'Zhiwei He', 'Hao Fei').
 entries:
   - han: "《动手学大模型》"

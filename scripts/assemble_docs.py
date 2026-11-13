@@ -19,6 +19,7 @@ Usage:
 """
 from __future__ import annotations
 
+import json
 import re
 import shutil
 import sys
@@ -28,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_notebooks import to_markdown  # noqa: E402
 from i18n_links import ROOT, UNIQUE_NOTEBOOKS, PageContext, check_external_only, rewrite, source_files  # noqa: E402
 from i18n_normalize import normalize  # noqa: E402
+from i18n_slides_check import ENGLISH_DECKS  # the one definition of "English deck" (ch5, ch8)  # noqa: E402
 
 LANGS = ("vi", "en")
 
@@ -50,6 +52,44 @@ SLIDE_NOTICES = {"chapter6": "dual-use", "chapter7": "dual-use", "chapter10": "d
 _INCLUDE = re.compile(r"^\{\{(quote|fence) ([^{}\s]+)\}\}$")
 _FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 _HEADING = re.compile(r"^ {0,3}(#{1,6}(\s|$)|<h[1-6][\s>])")
+_SLIDE_HEADING = re.compile(r"^## Slide [0-9]+(?:[ \t].*)?$", re.M)
+DECKS_JS = ROOT / "overrides" / "assets" / "javascripts" / "slide-decks.js"
+
+
+def _deck_pages(chapter: int) -> int:
+    """Page count of chapterN's deck, read from slide-decks.js (kept true by slide_decks.py
+    --check), so this can never drift from what the viewer itself uses."""
+    text = DECKS_JS.read_text(encoding="utf-8")
+    data = json.loads(text[text.index("{", text.index("DECKS")) : text.rindex("}") + 1])
+    key = next(k for k in data if k.startswith(f"chapter{chapter}/"))
+    return data[key]["pages"]
+
+
+def append_stub_slides(text: str, chapter: int, source: str) -> str:
+    """Item A: docs/en/chapterN/slides.md for an English deck (ch5, ch8 -- ENGLISH_DECKS)
+    holds only a title and the deck link, no notes of its own. Append one plain "## Slide k"
+    heading per deck page (k = 1..pages) so the existing viewer (slide-viewer.js, which reads
+    every h2[id^='slide-'] under the deck's own page count) renders it exactly as it does a
+    chapter with real notes.
+
+    No notes text exists for these decks, so no paragraph follows each heading. Accepted
+    (plan item A2): slideTitle() then returns "", so T.alt falls back to "Original slide k";
+    a screen reader gets that label plus the deck link and nothing else, same as the slide's
+    aria-hidden text layer already gives on every other chapter when a page has no text.
+    The right-hand ToC and the search index gain 48/81 empty-bodied entries; also accepted.
+
+    attr_list is off (mkdocs.yml), so the heading is bare "## Slide k" text -- never a manual
+    "{#slide-k}" anchor -- and the toc extension's own slugify gives it id "slide-k".
+    """
+    before = len(_SLIDE_HEADING.findall(text))
+    if before:
+        raise ValueError(f"{source}: stub already has {before} '## Slide' heading(s), expected 0")
+    pages = _deck_pages(chapter)
+    out = text.rstrip("\n") + "\n\n" + "\n".join(f"## Slide {k}" for k in range(1, pages + 1)) + "\n"
+    after = len(_SLIDE_HEADING.findall(out))
+    if after != pages:
+        raise ValueError(f"{source}: appended {after} headings, expected {pages} (deck page count)")
+    return out
 
 
 def notice_text(lang: str, key: str) -> str:
@@ -147,6 +187,9 @@ def assemble(docs: Path, translation_root: Path | None) -> list[str]:
                 out = docs / lang / slides.stem / "slides.md"
                 text = normalize(slides.read_text(encoding="utf-8"))
                 check_external_only(text, str(slides))
+                chapter_num = int(slides.stem.removeprefix("chapter"))
+                if lang == "en" and chapter_num in ENGLISH_DECKS:
+                    text = append_stub_slides(text, chapter_num, str(slides))
                 if slides.stem in SLIDE_NOTICES:  # the dual-use decks carry the notice too
                     text = insert_notice(text, notice_text(lang, SLIDE_NOTICES[slides.stem]), str(out))
                 _write(out, text)
