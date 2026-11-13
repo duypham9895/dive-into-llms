@@ -47,6 +47,8 @@ jobs:
         run: mkdocs build --strict
       - name: Check the built HTML against its Markdown
         run: python scripts/i18n_render_check.py site docs
+      - name: Check the GitHub README pair is not stale
+        run: python scripts/build_github_readme.py --check
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site

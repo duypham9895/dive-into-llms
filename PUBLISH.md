@@ -14,11 +14,16 @@ git switch content/i18n
 git status --short                         # must be empty
 P=.venv/bin/python
 $P scripts/test_i18n_normalize.py && $P scripts/test_i18n_links.py && $P scripts/test_i18n_check.py \
-  && $P scripts/test_i18n_slides_check.py && $P scripts/i18n_check.py && $P scripts/i18n_slides_check.py \
+  && $P scripts/test_i18n_slides_check.py && $P scripts/test_build_github_readme.py \
+  && $P scripts/i18n_check.py && $P scripts/i18n_slides_check.py \
   && $P scripts/slide_decks.py --check \
   && $P scripts/assemble_docs.py && .venv/bin/mkdocs build --strict \
-  && $P scripts/i18n_render_check.py site docs
+  && $P scripts/i18n_render_check.py site docs \
+  && $P scripts/build_github_readme.py --check
 ```
+
+`build_github_readme.py --check` runs last because its own live-URL check reads `site/`,
+built by the `mkdocs build` just above it.
 
 ## 1. Create the fork and the removal-request channel
 
@@ -51,7 +56,26 @@ gh api -X POST repos/duypham9895/dive-into-llms/pages -f build_type=workflow
 gh api repos/duypham9895/dive-into-llms/pages --jq '.build_type, .html_url'   # expect: workflow
 ```
 
-## 4. Merge and push main
+## 4. Render-check the GitHub README at the pushed ref
+
+The branch is on GitHub now, `main` is not yet: this is the only chance to check the real
+file before it can show on the repo's default page. `POST /markdown` cannot be used for
+this (it does not add heading ids at all); a GET of the file at the ref, rendered, does:
+
+```sh
+for f in README.md README.en.md; do
+  gh api -H 'Accept: application/vnd.github.html' \
+    "repos/duypham9895/dive-into-llms/contents/.github/$f?ref=content/i18n" > "/tmp/$f.html"
+  echo "$f: $(grep -c 'id="user-content-' "/tmp/$f.html") heading ids"
+done
+```
+
+Every `#fragment` the file links to must match an `id="user-content-<fragment>"` in that
+render (3 per language: motivation, contents, contributors). A mismatch means the slug
+rule and GitHub's real renderer disagree; fix `scripts/build_github_readme.py`, push the
+fix to `content/i18n`, and check again before merging.
+
+## 5. Merge and push main
 
 One merge commit, so a take-down can revert it in one step.
 
@@ -61,7 +85,7 @@ git merge --no-ff content/i18n -m "Publish the Vietnamese and English translatio
 git push origin main
 ```
 
-## 5. Watch the Actions run
+## 6. Watch the Actions run
 
 If the fork says workflows are disabled, enable them, and if the list below is empty, start a run:
 
@@ -77,7 +101,7 @@ gh run watch -R duypham9895/dive-into-llms --exit-status "$(gh run list -R duyph
 
 Both jobs (`build`, `deploy`) must succeed. A failed run deploys nothing.
 
-## 6. Live checks
+## 7. Live checks
 
 Every page answers 200 (52 pages: home, 11 chapters, 3 notebooks, 11 slide notes, in vi and en):
 
@@ -115,13 +139,21 @@ to the same page in the other language, and that the banner and its Issues link 
   `gh api -X PUT repos/duypham9895/dive-into-llms/subscription -F subscribed=true`.
   A DMCA notice from GitHub arrives by email to the account address.
 - **Answer time:** about 1 business day for a DMCA notice or a removal request.
-- **Unpublish:**
+- **Unpublish:** `main` already has several publish merges (42ad6f5, 849d208, f7f65ff,
+  0a6e7b4, and any later one `git log --merges main` shows above them) -- `git log --merges
+  -1` alone only reverts the newest. Revert every one of them, newest first, and remove the
+  two GitHub-README files separately: a `git revert` of the merge that added them only
+  undoes that merge's own changes, not a later commit that also touched them.
 
   ```sh
   gh api -X DELETE repos/duypham9895/dive-into-llms/pages
   gh workflow disable pages.yml -R duypham9895/dive-into-llms
   git switch main
-  git revert -m 1 --no-edit "$(git log --merges -1 --format=%H)"   # the publish merge
+  for sha in 0a6e7b4 f7f65ff 849d208 42ad6f5; do
+    git revert -m 1 --no-edit "$sha"
+  done
+  git rm .github/README.md .github/README.en.md
+  git commit -m "Take down the GitHub README pair with the rest of the site"
   git push origin main
   ```
 
