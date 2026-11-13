@@ -4,7 +4,7 @@
 
 Unofficial Vietnamese/English translation of 《动手学大模型》 Dive into LLMs ([github.com/Lordog/dive-into-llms @ f84c042](https://github.com/Lordog/dive-into-llms/tree/f84c04268794ef94f8949808bbc14ab8636763a0)). Original work by Zhang Zhuosheng (张倬胜), Yuan Tongxin (袁童鑫) et al. (SJTU, NUS), with support from the Huawei Ascend community. Translated with AI and checked automatically; not fully reviewed by a human. Not affiliated with or endorsed by the authors. Copyright remains with the original authors. Removal requests: [https://github.com/duypham9895/dive-into-llms/issues](https://github.com/duypham9895/dive-into-llms/issues)
 
-The star/fork/issue badges and the Star History chart below belong to the original repository (Lordog/dive-into-llms), not to this fork. Translation errors: open an issue at [https://github.com/duypham9895/dive-into-llms/issues](https://github.com/duypham9895/dive-into-llms/issues).
+The star/fork/issue badges, the "PRs Welcome" badge, the Star History chart, and the "Contributing" section below all belong to the original repository (Lordog/dive-into-llms), not to this fork -- they invite contributions to the original project, not to this translation. Translation errors: open an issue at [https://github.com/duypham9895/dive-into-llms/issues](https://github.com/duypham9895/dive-into-llms/issues).
 
 ---
 
