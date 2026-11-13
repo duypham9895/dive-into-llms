@@ -56,6 +56,9 @@ theme:
   name: material
   custom_dir: overrides
   language: vi
+  # System fonts (Duy, 2026-11-13, option A): Roboto from Google Fonts swapped in 0.6–0.9 s after
+  # load and reflowed the page by up to ~300 px; it also sent every reader's IP to Google.
+  font: false
   features:
     - navigation.sections
     - navigation.top
