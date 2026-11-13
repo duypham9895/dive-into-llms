@@ -31,7 +31,9 @@ a wrong, 404ing `sitemap.xml` on every page). Bumping `mkdocs-material` in
 `requirements-docs.lock` means re-copying that block from the new version's
 `material/templates/base.html` and re-applying the same one-line removal, or the override
 can silently fall behind Material's own `<head>` (a missing `<meta>`/`<link>` future versions
-add there).
+add there). The same holds for `overrides/partials/source.html`: Material 9.7.1's partial minus
+`data-md-component="source"`, so the page never calls api.github.com (404 for a fork with no
+release, 403 once rate-limited); re-copy it from the new version and drop the attribute again.
 
 ## 1. Create the fork and the removal-request channel
 

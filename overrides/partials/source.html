@@ -1,0 +1,18 @@
+{#-
+  Override of mkdocs-material 9.7.1 partials/source.html (included by partials/header.html and
+  partials/nav.html). Same link, icon and repository name; the only change is that the
+  `data-md-component="source"` attribute is dropped, so Material's JavaScript does not call
+  api.github.com for the repository's stars, forks and latest release. The fork has no release,
+  so that call answered 404 on every new browser session (403 once rate-limited), and it sent
+  every reader's IP to GitHub's API for numbers that read 0 here. Re-copy this file if
+  mkdocs-material is bumped (see PUBLISH.md).
+-#}
+<a href="{{ config.repo_url }}" title="{{ lang.t('source') }}" class="md-source">
+  <div class="md-source__icon md-icon">
+    {% set icon = config.theme.icon.repo or "fontawesome/brands/git-alt" %}
+    {% include ".icons/" ~ icon ~ ".svg" %}
+  </div>
+  <div class="md-source__repository">
+    {{ config.repo_name }}
+  </div>
+</a>
