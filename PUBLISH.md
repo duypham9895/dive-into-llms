@@ -25,6 +25,14 @@ $P scripts/test_i18n_normalize.py && $P scripts/test_i18n_links.py && $P scripts
 `build_github_readme.py --check` runs last because its own live-URL check reads `site/`,
 built by the `mkdocs build` just above it.
 
+`overrides/main.html`'s `site_meta` block is Material 9.7.1's own block, copied in by hand
+minus its `config.extra.alternate` hreflang loop (item D': that loop makes the browser fetch
+a wrong, 404ing `sitemap.xml` on every page). Bumping `mkdocs-material` in
+`requirements-docs.lock` means re-copying that block from the new version's
+`material/templates/base.html` and re-applying the same one-line removal, or the override
+can silently fall behind Material's own `<head>` (a missing `<meta>`/`<link>` future versions
+add there).
+
 ## 1. Create the fork and the removal-request channel
 
 ```sh

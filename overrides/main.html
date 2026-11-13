@@ -1,5 +1,49 @@
 {% extends "base.html" %}
 
+{#- Item D': Material 9.7.1's own site_meta block (material/templates/base.html:8-41, pinned
+    in requirements-docs.lock), copied verbatim MINUS its config.extra.alternate
+    <link rel="alternate" hreflang> loop -- do not touch anything else in this block.
+    Cause: mkdocs-static-i18n sets config.extra.alternate PER PAGE (href "./" and
+    "../../en/chapter2/slides/", not a language ROOT), so Material's client-side ui() --
+    which GETs "sitemap.xml" relative to every head <link rel=alternate>, expecting a root --
+    fetches a wrong, 404ing URL twice on every page. Dropping the loop here means the built
+    head has no hreflang <link> at all, so ui() finds none and requests no sitemap.xml: no
+    404, and the visible language switch (md-select__link, built from the same per-page
+    hrefs but never read by ui()'s sitemap lookup) is unaffected. hreflang itself is not
+    lost -- it still reaches Google via site/sitemap.xml's own xhtml:link alternates, which
+    mkdocs-static-i18n writes independently of this block.
+    Re-copy this block (and re-check its line range in base.html) whenever mkdocs-material
+    is bumped past 9.7.1. -#}
+{% block site_meta %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  {% if page.meta and page.meta.description %}
+    <meta name="description" content="{{ page.meta.description }}">
+  {% elif config.site_description %}
+    <meta name="description" content="{{ config.site_description }}">
+  {% endif %}
+  {% if page.meta and page.meta.author %}
+    <meta name="author" content="{{ page.meta.author }}">
+  {% elif config.site_author %}
+    <meta name="author" content="{{ config.site_author }}">
+  {% endif %}
+  {% if page.canonical_url %}
+    <link rel="canonical" href="{{ page.canonical_url }}">
+  {% endif %}
+  {% if page.previous_page %}
+    <link rel="prev" href="{{ page.previous_page.url | url }}">
+  {% endif %}
+  {% if page.next_page %}
+    <link rel="next" href="{{ page.next_page.url | url }}">
+  {% endif %}
+  {% if "rss" in config.plugins %}
+    <link rel="alternate" type="application/rss+xml" title="{{ lang.t('rss.created') }}" href="{{ 'feed_rss_created.xml' | url }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ lang.t('rss.updated') }}" href="{{ 'feed_rss_updated.xml' | url }}">
+  {% endif %}
+  <link rel="icon" href="{{ config.theme.favicon | url }}">
+  <meta name="generator" content="mkdocs-{{ mkdocs_version }}, mkdocs-material-9.7.1">
+{% endblock %}
+
 {#- Attribution banner on every page (plan v5, G1 = B, G4 = A). -#}
 {% block announce %}
   {% if config.theme.language == "en" %}
