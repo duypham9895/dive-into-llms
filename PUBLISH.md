@@ -35,6 +35,9 @@ add there).
 
 ## 1. Create the fork and the removal-request channel
 
+First publish only (done 2026-11-12: the fork exists, Issues and Actions are on). Later publishes
+start at step 0, then step 2.
+
 ```sh
 gh repo fork Lordog/dive-into-llms --clone=false
 gh repo edit duypham9895/dive-into-llms --enable-issues      # forks start with Issues off
